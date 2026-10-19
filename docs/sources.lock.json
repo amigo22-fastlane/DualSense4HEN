@@ -1,0 +1,83 @@
+{
+  "audit_date": "2026-10-19",
+  "repositories": [
+    {
+      "name": "Control4Free",
+      "url": "https://github.com/MoHadiShibli/Control4Free",
+      "commit": "5a8f9e3d0e75378644e7f7b2df6176c386a24da9",
+      "branch": "main"
+    },
+    {
+      "name": "dualsense",
+      "url": "https://github.com/nondebug/dualsense",
+      "commit": "b87450eb1c4ba8d74948f13b43d4c1eaa8ffa4f5",
+      "branch": "main"
+    },
+    {
+      "name": "dualsense-controller",
+      "url": "https://github.com/ClutchBenefactor/dualsense-controller",
+      "commit": "6fa460ddc65139981e24c202b4b34c4bcea603ae",
+      "branch": "main"
+    },
+    {
+      "name": "DualSenseBridge",
+      "url": "https://github.com/spsokhi/DualSenseBridge",
+      "commit": "86affe5f3b3015b42d8d29c578b1f31a9f307adf",
+      "branch": "main"
+    },
+    {
+      "name": "Enhanced-PS5-DualSense-Haptics-Bridge",
+      "url": "https://github.com/ragnarok179/Enhanced-PS5-DualSense-Haptics-Bridge",
+      "commit": "fc0f23ec719a1ddc39c2e76c655a7de39fd793b7",
+      "branch": "main"
+    },
+    {
+      "name": "GoldHEN_Plugins_Repository",
+      "url": "https://github.com/GoldHEN/GoldHEN_Plugins_Repository",
+      "commit": "998fe03fe0275b59310511187ba8550ed475a003",
+      "branch": "main"
+    },
+    {
+      "name": "GoldHEN_Plugins_SDK",
+      "url": "https://github.com/GoldHEN/GoldHEN_Plugins_SDK",
+      "commit": "bcea3c7ef01dac6d7f9f49ebf9e90fe66d86f5f7",
+      "branch": "main"
+    },
+    {
+      "name": "OpenOrbis-PS4-Toolchain",
+      "url": "https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain",
+      "commit": "0a1aaf9dd4a92695538bdeb09fb056d06dd11725",
+      "branch": "master"
+    },
+    {
+      "name": "ps4libdoc",
+      "url": "https://github.com/idc/ps4libdoc",
+      "commit": "a71315e7f36e312ae71e9e3a92982e9ffbfc725f",
+      "branch": "9.00"
+    },
+    {
+      "name": "ps4sdk",
+      "url": "https://github.com/ps4dev/ps4sdk",
+      "commit": "4df9d001b66ae4ec07d9a51b62d1e4c5e270eecc",
+      "branch": "master"
+    },
+    {
+      "name": "remotePad-ng",
+      "url": "https://github.com/MoHadiShibli/remotePad-ng",
+      "commit": "ab0a2654f0b127829e4fed153d62da665dc32179",
+      "branch": "main"
+    },
+    {
+      "name": "sdk",
+      "url": "https://github.com/ps4-payload-dev/sdk",
+      "commit": "573b4a0d0d5fa8695cfeee5f5e2f0447c550035d",
+      "branch": "master"
+    },
+    {
+      "name": "xbox_controller_plugin",
+      "url": "https://github.com/crucifix86/xbox_controller_plugin",
+      "commit": "dfc17b2dd39cf7e1019f1ccc07c9e0353dc089f3",
+      "branch": "master"
+    }
+  ]
+}

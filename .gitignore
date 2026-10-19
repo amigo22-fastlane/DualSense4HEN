@@ -1,0 +1,10 @@
+/research/
+/.tools/
+/build/
+/.zig-cache/
+*.o
+*.obj
+*.exe
+*.elf
+*.prx
+__pycache__/
