@@ -113,3 +113,25 @@ Nie jest to próba naprawy transferu przez zmianę losowych sygnatur: drugie
 pole FreeDeviceList ma potwierdzone użycie, a ta funkcja była wywoływana dopiero
 po nieudanym odbiorze. Testy atrap wymagają teraz unref_devices=1. Końcowy ELF
 rev 6 został uruchomiony na PS4: deskryptor 289 B nadal działa, wejście nie.
+
+## Dlaczego backend może zwrócić pustą listę bez błędu API
+
+Dalsza analiza tej samej, wcześniej zatwierdzonej kopii RX wykazała, że
+enumeracja nie kończy się na otwarciu /dev/usbctl. Przetwarza nazwy węzłów
+ugen, otwiera poszczególne `/dev/ugen<bus>.<address>` w trybie O_RDWR i odpytuje
+ich metadane. Przy nieudanym otwarciu lub zapytaniu pomija urządzenie,
+zwalnia obiekt tymczasowy i kontynuuje skan. Końcowa ścieżka może zwrócić
+sukces backendu, mimo że nie dodano żadnego urządzenia do listy.
+
+To wyjaśnia mechanizm, przez który Init=0 i count=0 mogą ukryć odmowę niższej
+warstwy. Nie dowodzi, który dokładnie open lub ioctl został odrzucony w 1.03;
+ostatnie errno=1 jest tylko obserwacją po API. Odczyt /dev/usbctl nie dowodzi
+możliwości otwarcia węzła konkretnego urządzenia ani dostępu do endpointu HID.
+
+Następny pomiar powinien najpierw ustalić bus/address przez rzeczywiste
+eksporty sceUsbd na wyliczonym DualSense w PayLoaderze, po odrębnej weryfikacji
+ich ABI. Dopiero na tej podstawie porównać otwarcie dokładnie tego samego
+węzła z aplikacji, bez transferów, zmian praw i poświadczeń. Bez potwierdzonej
+ścieżki nie skanować losowych węzłów i nie odtwarzać prywatnych ioctl na ślepo.
+Nie wdrożono jeszcze tej sondy; jej zakres różni się od wykonanego O_RDONLY
+na /dev/usbctl. Nie ma dowodu konieczności patcha jądra.

@@ -36,6 +36,10 @@ niezgodności modułów Bluetooth. Nie potwierdzono konieczności patcha jądra.
    ustalić pełne ABI i wykazać, że operacja jest tylko do odczytu. Samo errno
    po API nie wystarcza; nie wdrożono hooków ani prywatnych ioctl.
    Nie zmieniać praw urządzeń ani authid.
+   Audyt już wykazał, że backend dodatkowo otwiera węzły ugen w O_RDWR i może
+   pomijać nieudane urządzenia bez zwrócenia błędu listy. Najpierw ustalić
+   rzeczywiste bus/address DualSense przez zweryfikowane eksporty; następnie
+   porównać dostęp do tego konkretnego węzła, bez losowego skanowania i ioctl.
    Procedura: USB_APP.md. Status/errno po API nie zastępuje śledzenia
    konkretnego błędu backendu. Szczegóły: `USBD_ABI_EXPERIMENT.md`.
 5. Dopiero po odebraniu i walidacji realnych raportów włączyć VDA z kontrolą
