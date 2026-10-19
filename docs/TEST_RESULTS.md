@@ -31,3 +31,23 @@
   biblioteki i callback, odrzucona rejestracja urządzenia, brak raportów.
 - GitHub Actions pierwszego commita pozostało w stanie `queued` podczas
   odczytu. Nie deklarujemy pozytywnego wyniku CI/ASan/UBSan bez jego uzyskania.
+
+## 2026-10-19 — przygotowanie ponownego pomiaru USB
+
+- `tools/test-host.ps1`: **PASS 42403** rdzenia, **PASS USB 8972** kontroli.
+  Dodatkowo: próbkowanie do końca 30-sekundowego okna przy symulowanych
+  250 raportach/s, przycisk PS po 20 s widoczny w podglądzie DS4, odłączenie
+  po poprawnych raportach zwraca błąd i zwalnia zasoby, błędny raport nie jest
+  mapowany. To atrapy API na komputerze, nie dane z konsoli.
+- `python -m unittest discover -s tests -p test_probe_log.py -v`: **6 testów OK**.
+  Stary `exit=0`, brak nowej sesji, niekompletna sesja, nowa odmowa oraz
+  podmieniony/ucięty log nie stają się fałszywym sukcesem nowego pomiaru.
+- Zbudowano trzy ELF-y i `vda.o`; struktura trzech dystrybuowanych ELF-ów
+  przeszła `check-elf.py`. Wymieniono tylko ELF USB; BT probe i observer
+  pozostają bez zmian. SHA-256 rewizji 2 USB:
+  `ca51d304e4d128eb8e33135934de9112e77e1a0eeeb1aeeb9eb0e11bc07940b7`.
+- `analyze-bt-errors.py` wykonano na wcześniej zatwierdzonym lokalnym segmencie
+  libSceBluetoothHid, po sprawdzeniu SHA-256. Odtworzono 12 liczbowych mapowań,
+  w tym 0x802f3701 → 0x81540002. To analiza offline, nie nowy eksperyment BT.
+- Nowy kabel jest potwierdzony na PC przez właściciela. **Nowy pomiar PS4
+  jeszcze nie został wykonany/potwierdzony**. Szczegóły: `USB_RETEST.md`.

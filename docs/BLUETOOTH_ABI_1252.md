@@ -71,3 +71,26 @@ operacji bond, nie zapisuje
 kluczy Bluetooth, nie dotyka konfiguracji systemowej ani nie udaje udanego
 parowania. Test: odłączyć kabel DualSense, wejść do systemowej listy urządzeń
 Bluetooth i użyć Create+PS. Wynik odmowy/powodzenia trzeba zapisać osobno.
+
+## Dalsza analiza błędu 0x81540002
+
+Z już lokalnie odczytanego kodu tej samej biblioteki odtworzono tabelę
+translacji błędów RegisterDevice. Wewnętrzne wywołanie ioctl `0x8004622b`
+przekazuje dwie wartości 16-bitowe w 4-bajtowym bloku. Ścieżka translacji
+przekształca **0x802f3701 w 0x81540002**. Inne stany, w tym brak
+inicjalizacji (0x81540004) i callbacku (0x81540006), mają oddzielne ścieżki.
+Wynik jest zatem zgodny z odmową rejestracji w warstwie urządzenia, a nie
+automatycznym dowodem błędu inicjalizacji lub braku callbacku.
+
+To własna analiza przepływu kodu, nie nowy pomiar ioctl: wrapper przepuszcza
+też niektóre nieznane statusy, więc sam zwrócony kod nie dowodzi jednoznacznie
+surowego wyniku sterownika. Nie ustalono warunku odrzucenia, allowlisty,
+ograniczenia Sony ani konieczności patcha. Nie zamieniamy tych hipotez w fakty.
+Nie zmieniono argumentów ani nie uruchomiono ponownie observera.
+
+Reprodukcja offline: `python tools/analyze-bt-errors.py build/hardware/bt-seg0.bin`.
+Skrypt weryfikuje pełny SHA-256 i rozmiar przed użyciem tabeli +0x1ab0 i
+ścieżki +0xb44 (adresy względne **tej biblioteki**, nie jądra). Wypisuje tylko
+liczbowe mapowania, bez bajtów Sony. Binaria nadal pozostają poza GitHub.
+Następny rozstrzygający krok to niezależny call-site rejestracji na 12.52 lub
+potwierdzenie warunku sterownika, zanim zaproponujemy zmiany jego zachowania.

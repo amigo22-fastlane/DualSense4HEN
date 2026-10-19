@@ -3,6 +3,7 @@
  * Descriptor types supplied by the SDK's libusb.h; no Linux libusb calls. */
 #include "runtime.h"
 #include "ds4hen/hid.h"
+#include "ds4hen/ps4_pad.h"
 #include <libusb.h>
 #include <string.h>
 typedef struct {
@@ -66,34 +67,48 @@ static int capture(usb_api *u,libusb_device *dev,const struct libusb_config_desc
     ret=u->claim(handle,iface);
     d4h_log("sceUsbdClaimInterface=0x%x (no detach/reset fallback)\n",ret);
     if (ret) { u->close(handle); return -3; }
-    uint64_t start=d4h_rt.time_us(); unsigned good=0,bad=0,timeouts=0;
-    /* <=30 seconds, <=256 raw report lines, finite reads, stop marker. */
-    for (unsigned attempts=0;attempts<7500 && !d4h_stopping();++attempts) {
+    uint64_t start=d4h_rt.time_us(),last_sample=0;
+    unsigned good=0,bad=0,timeouts=0,samples=0; int io_error=0;
+    d4h_log("USB capture begin: <=30s / <=30000 reads; hold each input >=1s; DS4 dry-run only\n");
+    /* Sample throughout the capture, not just the first second. Parse/map every
+     * valid report, but never call VDA or change process privileges here. */
+    for (unsigned attempts=0;attempts<30000 && !d4h_stopping();++attempts) {
         uint64_t now=d4h_rt.time_us();
         if (now<start || now-start>=30000000u) break;
         uint8_t report[128]; int32_t received=0;
         ret=u->read(handle,endpoint,report,sizeof(report),&received,100);
         if (ret==LIBUSB_ERROR_TIMEOUT) { ++timeouts; continue; }
-        if (ret) { d4h_log("interrupt error=0x%x bytes=%d\n",ret,received); break; }
+        if (ret) { io_error=ret; d4h_log("interrupt error=0x%x bytes=%d\n",ret,received); break; }
         if (received<=0 || received>(int32_t)sizeof(report)) { ++bad; continue; }
-        if (good+bad<256) d4h_hex("usb-raw",report,(size_t)received);
         d4h_state state;
         int parse=d4h_parse(D4H_USB,report,(size_t)received,&state);
         if (!parse) {
             ++good;
-            if (good<=256) d4h_log("usb-parse OK buttons=0x%x sticks=%u,%u,%u,%u triggers=%u,%u touch=%u,%u\n",
-                state.buttons,state.lx,state.ly,state.rx,state.ry,state.l2,state.r2,
-                state.touch[0].active,state.touch[1].active);
-        } else { ++bad; if (bad<=16) d4h_log("usb-parse error=%d\n",parse); }
+            d4h_ps4_pad_data pad;
+            d4h_map_ps4(&state,now,(uint8_t)good,&pad);
+            if (samples<120 && (!samples || now-last_sample>=250000u)) {
+                last_sample=now; ++samples;
+                d4h_hex("usb-raw",report,(size_t)received);
+                d4h_log("usb-parse OK t_ms=%llu buttons=0x%x sticks=%u,%u,%u,%u triggers=%u,%u touch=%u,%u\n",
+                    (unsigned long long)((now-start)/1000u),state.buttons,state.lx,state.ly,state.rx,state.ry,state.l2,state.r2,
+                    state.touch[0].active,state.touch[1].active);
+                d4h_log("ds4-dry-run bytes=%zu buttons=0x%x sticks=%u,%u,%u,%u triggers=%u,%u fingers=%u touch0=%u,%u touch1=%u,%u\n",
+                    sizeof(pad),pad.buttons,pad.lx,pad.ly,pad.rx,pad.ry,pad.l2,pad.r2,pad.touch_data.fingers,
+                    pad.touch_data.touch[0].x,pad.touch_data.touch[0].y,
+                    pad.touch_data.touch[1].x,pad.touch_data.touch[1].y);
+            }
+        } else { ++bad; if (bad<=16) { d4h_hex("usb-invalid",report,(size_t)received); d4h_log("usb-parse error=%d\n",parse); } }
     }
-    d4h_log("USB summary good=%u bad=%u timeouts=%u\n",good,bad,timeouts);
+    d4h_log("USB summary good=%u bad=%u timeouts=%u samples=%u io_error=0x%x stopped=%d\n",
+        good,bad,timeouts,samples,io_error,d4h_stopping());
     int release=u->release(handle,iface);
     d4h_log("sceUsbdReleaseInterface=0x%x\n",release);
     u->close(handle);
-    return release ? -4 : good ? 0 : -5;
+    return release ? -4 : io_error ? -6 : good ? 0 : -5;
 }
 int d4h_usb_probe(void)
 {
+    d4h_log("USB probe revision=2 begin; enumeration then bounded HID capture; no VDA calls\n");
     usb_api u;
     int h=d4h_module("/system/common/lib/libSceUsbd.sprx","sceUsbdInit");
     if (h<0) return -20;
@@ -112,13 +127,37 @@ int d4h_usb_probe(void)
         for (int32_t i=0;i<count && !d4h_stopping();++i) {
             struct libusb_device_descriptor desc;
             memset(&desc,0,sizeof(desc));
-            if (u.descriptor(list[i],&desc)) continue;
+            ret=u.descriptor(list[i],&desc);
+            d4h_log("USB device index=%d descriptor status=0x%x\n",i,ret);
+            if (ret) continue;
+            d4h_log("USB descriptor VID=%04x PID=%04x bcdUSB=0x%x bcdDevice=0x%x class=%u subclass=%u protocol=%u configs=%u ep0=%u length=%u type=%u\n",
+                desc.idVendor,desc.idProduct,desc.bcdUSB,desc.bcdDevice,desc.bDeviceClass,desc.bDeviceSubClass,
+                desc.bDeviceProtocol,desc.bNumConfigurations,desc.bMaxPacketSize0,desc.bLength,desc.bDescriptorType);
             if (desc.idVendor!=0x054c || desc.idProduct!=0x0ce6) continue;
             d4h_log("DualSense VID=%04x PID=%04x\n",desc.idVendor,desc.idProduct);
             struct libusb_config_descriptor *config=0;
             ret=u.config(list[i],&config);
             d4h_log("active config=0x%x\n",ret);
-            if (!ret && config) { result=capture(&u,list[i],config); u.free_config(config); }
+            if (!ret && config) {
+                d4h_log("USB config value=%u interfaces=%u total_length=%u attributes=0x%x max_power=%u\n",
+                    config->bConfigurationValue,config->bNumInterfaces,config->wTotalLength,config->bmAttributes,config->MaxPower);
+                if (config->interface) for (unsigned n=0;n<config->bNumInterfaces;++n) {
+                    const struct libusb_interface *in=&config->interface[n];
+                    if (!in->altsetting) continue;
+                    for (int a=0;a<in->num_altsetting;++a) {
+                        const struct libusb_interface_descriptor *alt=&in->altsetting[a];
+                        d4h_log("USB interface=%u alt=%u class=%u subclass=%u protocol=%u endpoints=%u\n",
+                            alt->bInterfaceNumber,alt->bAlternateSetting,alt->bInterfaceClass,
+                            alt->bInterfaceSubClass,alt->bInterfaceProtocol,alt->bNumEndpoints);
+                        if (alt->endpoint) for (unsigned e=0;e<alt->bNumEndpoints;++e) {
+                            const struct libusb_endpoint_descriptor *ep=&alt->endpoint[e];
+                            d4h_log("USB endpoint=0x%x attributes=0x%x max_packet=%u interval=%u\n",
+                                ep->bEndpointAddress,ep->bmAttributes,ep->wMaxPacketSize,ep->bInterval);
+                        }
+                    }
+                }
+                result=capture(&u,list[i],config); u.free_config(config);
+            }
             else result=-23;
             break;
         }

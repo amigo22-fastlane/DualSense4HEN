@@ -18,7 +18,7 @@ set_tests_properties(core PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_D
 set(D4H_USB_HEADER "" CACHE FILEPATH "Optional PS4 SDK libusb.h for USB mock tests")
 if(D4H_USB_HEADER AND NOT MSVC)
   configure_file("${D4H_USB_HEADER}" "${CMAKE_BINARY_DIR}/test-headers/libusb.h" COPYONLY)
-  add_executable(test_usb tests/test_usb.c platform/ps4/usb_probe.c src/hid.c)
+  add_executable(test_usb tests/test_usb.c platform/ps4/usb_probe.c src/hid.c src/ps4_pad.c)
   target_include_directories(test_usb PRIVATE include)
   target_include_directories(test_usb SYSTEM PRIVATE "${CMAKE_BINARY_DIR}/test-headers")
   target_compile_options(test_usb PRIVATE -Wall -Wextra -Wpedantic -Werror -include "${CMAKE_CURRENT_SOURCE_DIR}/tests/usb_compat.h")

@@ -21,7 +21,7 @@ try {
         # Only the descriptor header; using the full PS4 sysroot for host tests would be wrong.
         New-Item -ItemType Directory -Force build/test-headers | Out-Null
         Copy-Item "$Sdk/target/include/libusb.h" build/test-headers/libusb.h
-        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -Iinclude -isystem build/test-headers -include tests/usb_compat.h src/hid.c platform/ps4/usb_probe.c tests/test_usb.c -o build/host/test_usb.exe
+        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -Iinclude -isystem build/test-headers -include tests/usb_compat.h src/hid.c src/ps4_pad.c platform/ps4/usb_probe.c tests/test_usb.c -o build/host/test_usb.exe
         if ($LASTEXITCODE -ne 0) { throw 'USB mock tests compilation failed' }
         & ./build/host/test_usb.exe
         if ($LASTEXITCODE -ne 0) { throw 'USB mock tests failed' }

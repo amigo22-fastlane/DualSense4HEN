@@ -22,8 +22,9 @@ Sprzęt zgłoszony przez właściciela: PS4 Slim, firmware **12.52**, GoldHEN
 - Zbudowane sondy ELF i observer Bluetooth z profilem biblioteki z PS4 12.52.
 - Test sprzętowy: Init=0, RegisterCallback=0, RegisterDevice=0x81540002,
   UnregisterCallback=0, join=0. Znaczenie błędu rejestracji jest nieustalone.
-- Prototyp USB uruchamia się na konsoli, ale zwraca pustą listę urządzeń;
-  odbiór raportów USB pozostaje niepotwierdzony.
+- Poprzedni test USB zwrócił pustą listę; właściciel następnie wykrył problem
+  kabla. Rewizja 2 czeka na powtórzenie ze sprawdzonym kablem danych:
+  [procedura i logi](docs/USB_RETEST.md). Odbiór USB pozostaje niepotwierdzony.
 
 ## Testy na komputerze
 

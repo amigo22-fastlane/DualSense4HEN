@@ -18,7 +18,9 @@ Sony pozostają poza repozytorium.
 | Observer: RegisterDevice(054c,0ce6) | **0x81540002** | Próba rejestracji została odrzucona; symboliczne znaczenie błędu nieustalone. |
 | Observer: UnregisterCallback / scePthreadJoin | 0 / 0 | Callback wyrejestrowany i wątek zakończony, bez uwalniania kodu spod wątku. |
 | Observer: raporty | callbacks=0, events=0, parsed=0 | Brak dowodu odbioru DualSense przez Bluetooth. |
-| USB, także po potwierdzeniu podłączenia DualSense | Init=0; GetDeviceList=0; lista ma pierwszy element NULL | W tym kontekście nie uzyskano urządzeń. Nie potwierdzono odbioru HID ani przyczyny pustej listy. |
+| USB, wcześniejszy kabel | Init=0; GetDeviceList=0; lista ma pierwszy element NULL | Pomiar obciążony problemem kabla: późniejszy test na PC nie wykrywał przez niego DualSense. Nie dowodzi ograniczenia API PS4. |
+| Nowy kabel USB-C, test PC zgłoszony przez właściciela | PC prawidłowo wykrywa DualSense | Kabel obsługuje dane USB na PC. Nie jest to jeszcze wynik PS4. |
+| Nowy kabel, ponowny test PS4 | **Oczekuje na wykonanie i potwierdzenie** | Przygotowano rewizję 2 ELF i procedurę `USB_RETEST.md`; brak nowego logu sprzętowego. |
 
 Pierwotny prototyp niewłaściwie traktował symbol bazy ELF jako ABS i nie
 deklarował wszystkich rejestrów zmienianych przez syscall. Log startu pozwolił
@@ -46,3 +48,16 @@ zapisano. Nie zmieniano kodu jądra, firmware, plugins.ini ani authid procesu.
 **Nie przetestowano:** bezpośredniego parowania i reconnect, raportów BT/USB,
 wirtualnego DS4 na sprzęcie, PS/Options/Create w menu i grach, touchpada w
 grach, rest mode ani pełnej kompatybilności. Nie deklarujemy ich działania.
+
+## Korekta interpretacji USB i nowy ELF
+
+Właściciel zidentyfikował poprzedni kabel jako niepozwalający wykryć kontrolera
+na komputerze, a inny kabel jako poprawnie przesyłający dane. Poprzednia pusta
+lista pozostaje autentycznym wynikiem API, ale nie izoluje wpływu kabla od
+uprawnień, backendu lub kontekstu procesu. Najpierw należy powtórzyć pomiar.
+
+Stary ELF można uruchomić ponownie; rewizja 2 poprawia obserwowalność:
+loguje wszystkie VID/PID, konfigurację celu i próbki przez całe okno, następnie
+mapuje odczytany stan do DS4 wyłącznie w podglądzie. Nie wywołuje VDA.
+Hostowe testy nowych ścieżek nie stanowią pomiaru na konsoli.
+Szczegóły i wymagane logi: [USB_RETEST.md](USB_RETEST.md).

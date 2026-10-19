@@ -20,7 +20,10 @@ niezgodności modułów Bluetooth. Nie potwierdzono konieczności patcha jądra.
    przez systemowy proces obsługujący ekran Bluetooth; `libSceBluetoothHid`
    nie dostarcza potwierdzonego publicznego API parowania. Publiczna lista
    `libSceHidControl` zawiera connect/info, lecz bez wykazanego ABI bonding.
-4. Dla USB porównać enumerację w samodzielnym kontekście aplikacji OpenOrbis
+4. **Najpierw USB ze sprawdzonym nowym kablem danych** według `USB_RETEST.md`.
+   Stary kabel nie pozwalał wykryć DualSense na PC, więc wcześniejszy pusty
+   wynik nie rozstrzyga ograniczeń PS4. Jeśli wynik się powtórzy, porównać
+   enumerację w samodzielnym kontekście aplikacji OpenOrbis
    i procesie PayLoadera oraz zweryfikować backend/ABI `sceUsbd`. Zapis logu
    `count=0, first=NULL` nie rozstrzyga uprawnień ani przejęcia przez sterownik.
 5. Dopiero po odebraniu i walidacji realnych raportów włączyć VDA z kontrolą

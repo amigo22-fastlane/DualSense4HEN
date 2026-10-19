@@ -18,7 +18,7 @@ try {
         '-Wl,-e,_start,-T,platform/ps4/probe.ld,-z,max-page-size=0x4000')
     & $Zig @common -o build/ps4/dualsense4hen-bt-probe.elf
     if ($LASTEXITCODE -ne 0) { throw 'BT probe compilation failed' }
-    & $Zig @common -DD4H_USB_PROBE platform/ps4/usb_probe.c src/hid.c -o build/ps4/dualsense4hen-usb-probe.elf
+    & $Zig @common -DD4H_USB_PROBE platform/ps4/usb_probe.c src/hid.c src/ps4_pad.c -o build/ps4/dualsense4hen-usb-probe.elf
     if ($LASTEXITCODE -ne 0) { throw 'USB probe compilation failed' }
     if ($IncludeAbiDump) {
         & $Zig @common -DD4H_ABI_DUMP -o build/ps4/dualsense4hen-bt-abi-probe.elf

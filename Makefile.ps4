@@ -19,9 +19,11 @@ build/ps4/bt-main.o: platform/ps4/probe.c | build/ps4
 	$(CC) $(CFLAGS) -DD4H_BT_OBSERVER -c $< -o $@
 build/ps4/hid.o: src/hid.c | build/ps4
 	$(CC) $(CFLAGS) -c $< -o $@
+build/ps4/ps4_pad.o: src/ps4_pad.c | build/ps4
+	$(CC) $(CFLAGS) -c $< -o $@
 build/ps4/dualsense4hen-bt-probe.elf: build/ps4/runtime.o build/ps4/probe.o platform/ps4/probe.ld
 	$(LD) $(LDFLAGS) build/ps4/runtime.o build/ps4/probe.o -o $@
-build/ps4/dualsense4hen-usb-probe.elf: build/ps4/runtime.o build/ps4/usb-main.o build/ps4/usb_probe.o build/ps4/hid.o platform/ps4/probe.ld
-	$(LD) $(LDFLAGS) build/ps4/runtime.o build/ps4/usb-main.o build/ps4/usb_probe.o build/ps4/hid.o -o $@
+build/ps4/dualsense4hen-usb-probe.elf: build/ps4/runtime.o build/ps4/usb-main.o build/ps4/usb_probe.o build/ps4/hid.o build/ps4/ps4_pad.o platform/ps4/probe.ld
+	$(LD) $(LDFLAGS) build/ps4/runtime.o build/ps4/usb-main.o build/ps4/usb_probe.o build/ps4/hid.o build/ps4/ps4_pad.o -o $@
 build/ps4/dualsense4hen-bt-observer.elf: build/ps4/runtime.o build/ps4/bt-main.o build/ps4/bt_observer.o build/ps4/hid.o platform/ps4/probe.ld
 	$(LD) $(LDFLAGS) build/ps4/runtime.o build/ps4/bt-main.o build/ps4/bt_observer.o build/ps4/hid.o -o $@
