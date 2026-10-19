@@ -1,5 +1,12 @@
 # Następny eksperyment po 0x81540002
 
+**Aktualizacja 2026-10-20:** właściciel potwierdził istniejące połączenie
+DualSense w UI także bez USB. Pierwszy observer bez RegisterDevice wykonał
+35 s bez zdarzeń. Nie usuwać urządzenia, nie parować ponownie, nie restartować
+konsoli dla świeżego kontekstu. Obecny priorytet i wyniki:
+[EXISTING_BT_SESSION.md](research/EXISTING_BT_SESSION.md).
+Poniższa starsza propozycja Create+PS jest nieaktualna dla trwającej sesji.
+
 Obecna blokada: `sceBluetoothHidRegisterDevice(0x054c,0x0ce6)` odrzuca próbę,
 mimo poprawnych Init i RegisterCallback. Nie wiadomo jeszcze, czy przyczyną
 jest semantyka argumentów, rezerwacja identyfikatorów Sony, polityka sterownika,
@@ -14,7 +21,7 @@ niezgodności modułów Bluetooth. Nie potwierdzono konieczności patcha jądra.
 2. Zbudowano oddzielny pasywny observer bez RegisterDevice, po audycie tworzenia
    watchera przez RegisterCallback. Ma 30-sekundowe okno i te same warunki
    bezpiecznego join. Nie testowano go na konsoli. Zestawić przyszły log
-   z normalną próbą Create+PS i komunikatem systemowej listy Bluetooth;
+   z komunikatem istniejącej sesji systemowej listy Bluetooth;
    brak zdarzeń nadal nie rozstrzygnie fizycznej zgodności modułu.
 3. Rozdzielić dostęp HID od bond/discovery. Sprawdzić wywołania `/dev/bt`
    przez systemowy proces obsługujący ekran Bluetooth; `libSceBluetoothHid`

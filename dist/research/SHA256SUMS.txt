@@ -1,1 +1,4 @@
+60fe86b66ffb69d9bc25fb28460b191378e5c6612608511ea432eb265300b2a4  dualsense4hen-connected-bt.elf
+9c83f379fc33b6b287c2421f90ed0bfa01d59956f9b7520143e14e4098d99d5b  dualsense4hen-hidcontrol-abi.elf
 3a359fd32781a18f844cc75a3688d7dbafb1c7a03db15c15e826a970694c4c0a  dualsense4hen-native-bt-gate.elf
+6f2b5536d32339480f011b480a60680a29e0b343c1012102163c183a8cd4eefb  dualsense4hen-pad-view.elf

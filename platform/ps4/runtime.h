@@ -25,6 +25,7 @@ int d4h_module(const char *path,const char *anchor_symbol);
 int d4h_release_module(int handle);
 int d4h_module_owned(int handle);
 void d4h_pin_module(int handle);
+void d4h_keep_module(int handle,const char *reason);
 void d4h_log(const char *fmt,...);
 void d4h_hex(const char *label,const uint8_t *data,size_t size);
 int d4h_stopping(void);

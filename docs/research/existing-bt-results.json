@@ -1,0 +1,51 @@
+{
+  "firmware": "12.52 / 0x12520001",
+  "goldhen_owner_report": "v2.4b18.12",
+  "connection_owner_report": "DualSense, Controller, green connected, USB disconnected, lit, no menu input or PS user selection",
+  "runs": [
+    {
+      "sent_at_utc": "2026-10-19T22:04:30.740024+00:00",
+      "elf_sha256": "21ad39a0618a3506e0c19718620a15a5b36d4fb0d9a6c8e8007bcd9addef5a8f",
+      "local_log": "build/hardware/bt-connected-01.log",
+      "log_sha256": "5bcb72de1a7f28992378dcb236e777b5ffa1eec0f5f50526a6ba7b29f568c55e",
+      "revision": 1,
+      "bt_init": 0,
+      "bt_subscribe": 0,
+      "bt_unsubscribe": 0,
+      "worker_join": 0,
+      "callbacks": 0,
+      "events": 0,
+      "parsed": 0,
+      "pad_control": "NOT_RUN: UserService Init=0x80960003",
+      "owner_confirmed_sequence_and_preserved_connection": true,
+      "exit": 0
+    },
+    {
+      "sent_at_utc": "2026-10-19T22:07:29.219100+00:00",
+      "elf_sha256": "6f2b5536d32339480f011b480a60680a29e0b343c1012102163c183a8cd4eefb",
+      "local_log": "build/hardware/bt-pad-view-01.log",
+      "log_sha256": "1d7dc6d0468099d1add7eff74a34460211ad428e72610ec1888c6de685967880",
+      "revision": 2,
+      "bluetooth_subscription_attempted": false,
+      "users_query_before_init": 0,
+      "pad_init": 0,
+      "pad_reads": 347,
+      "pad_read_errors": 0,
+      "pad_connected_reads": 347,
+      "idle_x": 0,
+      "dualsense_phase_x": 0,
+      "ds4_control_l2": 0,
+      "own_pad_close": 0,
+      "owner_confirmed_sequence_and_preserved_connection": true,
+      "exit": 0
+    }
+  ],
+  "conclusion": {
+    "l2cap_control": "UNKNOWN",
+    "l2cap_interrupt": "UNKNOWN",
+    "hid_packets_from_dualsense": "NOT_OBSERVED_BY_THIS_CLIENT",
+    "global_pad_registration": "UNKNOWN",
+    "pad_positive_control": "FAILED",
+    "kernel_pairing_privilege_focus_changes": false
+  }
+}

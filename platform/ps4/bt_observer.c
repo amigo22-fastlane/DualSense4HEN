@@ -4,6 +4,10 @@
  * This observes HID events; it does not implement Bluetooth bonding. */
 #include "runtime.h"
 #include "ds4hen/hid.h"
+#ifdef D4H_BT_CONNECTED
+#include "ds4hen/bt_monitor.h"
+void (*d4h_bt_tick)(uint64_t);
+#endif
 #include <stdatomic.h>
 #include <string.h>
 typedef struct { void *address; uint32_t size; int32_t prot; } segment;
@@ -31,7 +35,14 @@ typedef struct {
     int32_t (*join)(void *,void **);
     int32_t (*info)(int32_t,module_info *);
 } bt_api;
-typedef struct { atomic_uint callbacks,reports,parsed,invalid; } observer;
+typedef struct {
+    atomic_uint callbacks,reports,parsed,invalid;
+#ifdef D4H_BT_CONNECTED
+    unsigned candidates,unattributed,matched,edges,samples;
+    uint64_t last_sample;
+    int seen_x,previous_x;
+#endif
+} observer;
 static void events(const bt_event *e,int count,void *context)
 {
     observer *o=context;
@@ -41,6 +52,40 @@ static void events(const bt_event *e,int count,void *context)
         unsigned n=atomic_fetch_add_explicit(&o->reports,1,memory_order_relaxed);
         if (n<64) d4h_log("BT event vendor=%04x product=%04x type=%u status=%u bytes=%u\n",
             e[i].vendor,e[i].product,e[i].type,e[i].status,e[i].size);
+#ifdef D4H_BT_CONNECTED
+        d4h_state state; d4h_bt_event inspected;
+        memcpy(&inspected,&e[i],sizeof(inspected));
+        uint64_t now=d4h_rt.time_us();
+        if (e[i].size && e[i].size<=sizeof(e[i].report) && o->samples<144 &&
+            (!o->samples || now<o->last_sample || now-o->last_sample>=250000u)) {
+            d4h_hex("BT observed raw",e[i].report,e[i].size);
+            d4h_log("BT raw source=0x%llx type_raw=%u status_raw=%u bytes=%u time_us=%llu\n",
+                (unsigned long long)e[i].device,e[i].type,e[i].status,e[i].size,(unsigned long long)now);
+            o->last_sample=now; ++o->samples;
+        }
+        int classification=d4h_bt_inspect(&inspected,&state);
+        if (classification==D4H_BT_NO_INPUT) continue;
+        if (classification<0) {
+            unsigned invalid=atomic_fetch_add(&o->invalid,1);
+            if (invalid<16) d4h_log("BT observed parse_error=%d; raw samples retained independently of parser\n",classification);
+            continue;
+        }
+        if (!classification) ++o->matched;
+        else if (classification==D4H_BT_FORMAT_CANDIDATE) ++o->candidates;
+        else ++o->unattributed;
+        unsigned good=atomic_fetch_add(&o->parsed,1);
+        int x=(state.buttons&D4H_CROSS)!=0;
+        /* Edge labels are observation-wide, not proof of one device identity. */
+        if (!o->seen_x || x!=o->previous_x) {
+            if (o->edges++<120) d4h_log("BT observed X=%d class=%d source=0x%llx time_us=%llu\n",
+                x,classification,(unsigned long long)e[i].device,(unsigned long long)now);
+            o->seen_x=1; o->previous_x=x;
+        }
+        if (good<16) {
+                d4h_log("BT observed parsed class=%d buttons=0x%x sticks=%u,%u,%u,%u triggers=%u,%u\n",
+                    classification,state.buttons,state.lx,state.ly,state.rx,state.ry,state.l2,state.r2);
+        }
+#else
         if (e[i].vendor!=0x054c || e[i].product!=0x0ce6 || !e[i].size) continue;
         if (e[i].size>sizeof(e[i].report)) { atomic_fetch_add(&o->invalid,1); continue; }
         d4h_state state;
@@ -56,6 +101,7 @@ static void events(const bt_event *e,int count,void *context)
             atomic_fetch_add(&o->invalid,1);
             if (n<64) d4h_log("BT HID rejected=%d\n",ret);
         }
+#endif
     }
 }
 static int kernel_fn(const char *name,void *dst,size_t size)
@@ -67,6 +113,9 @@ int d4h_bt_observe(void)
 {
     bt_api api; module_info info; observer o;
     memset(&api,0,sizeof(api)); memset(&info,0,sizeof(info));
+#ifdef D4H_BT_CONNECTED
+    memset(&o,0,sizeof(o));
+#endif
     atomic_init(&o.callbacks,0); atomic_init(&o.reports,0); atomic_init(&o.parsed,0); atomic_init(&o.invalid,0);
     int h=d4h_module("/system/common/lib/libSceBluetoothHid.sprx","sceBluetoothHidInit");
     if (h<0) return -30;
@@ -112,11 +161,21 @@ int d4h_bt_observe(void)
     /* Audited callback registration creates its own event watcher before any
      * device filter is registered. Whether the driver routes events in this
      * mode remains a hardware question, not an assumed pairing mechanism. */
-    d4h_log("BT passive observation 30s: no RegisterDevice, no pairing call\n");
+    d4h_log("BT passive subscription: no RegisterDevice, no pairing call; callback is not an HCI sniffer\n");
     uint64_t begin=d4h_rt.time_us();
-    for (unsigned i=0;i<300 && !d4h_stopping();++i) {
+#ifdef D4H_BT_CONNECTED
+    const unsigned limit=350;
+    const uint64_t duration=35000000u;
+#else
+    const unsigned limit=300;
+    const uint64_t duration=30000000u;
+#endif
+    for (unsigned i=0;i<limit && !d4h_stopping();++i) {
         uint64_t now=d4h_rt.time_us();
-        if (now<begin || now-begin>=30000000u) break;
+        if (now<begin || now-begin>=duration) break;
+#ifdef D4H_BT_CONNECTED
+        if (d4h_bt_tick) d4h_bt_tick(now-begin);
+#endif
         d4h_rt.usleep(100000);
     }
 #else
@@ -144,5 +203,9 @@ int d4h_bt_observe(void)
     }
     d4h_log("BT summary callbacks=%u events=%u parsed=%u invalid=%u\n",
         atomic_load(&o.callbacks),atomic_load(&o.reports),atomic_load(&o.parsed),atomic_load(&o.invalid));
+#ifdef D4H_BT_CONNECTED
+    d4h_log("BT connected summary metadata_matches=%u format31_candidates=%u common_unattributed=%u; zero callbacks does not prove absent HID channels\n",
+        o.matched,o.candidates,o.unattributed);
+#endif
     return ret ? -38 : 0;
 }

@@ -1,5 +1,11 @@
 # Niezależna rewizja architektury — 2026-10-19
 
+**Aktualizacja 2026-10-20:** potwierdzona przez właściciela sesja DualSense
+bez USB zmienia priorytet architektury A: obserwujemy istniejącą ścieżkę,
+bez nowych prób parowania. UI nie dowodzi kanałów HID. Nowy pomiar i granice
+wniosków: [EXISTING_BT_SESSION.md](EXISTING_BT_SESSION.md). Opis bazy poniżej
+zachowuje stan wiedzy sprzed tej obserwacji.
+
 Baza: **13aa707**, gałąź `codex/architecture-research-1252`. Main i wcześniejsze
 artefakty zachowano. Cel pozostaje: DualSense → wewnętrzny Bluetooth PS4 →
 menu i gry Orbis, bez urządzenia pośredniczącego. Nie uruchamiano patchy ani
@@ -45,8 +51,8 @@ Parowanie i odbiór mogą należeć do innych usług niż klient BluetoothHid.
 | C. Własny stos nad HCI/ACL | Własne discovery/SSP/SDP/L2CAP/HIDP, parser i wejście globalne; nie używa RegisterDevice. | Zweryfikowany transport do wewnętrznego radia, reguły współdzielenia i uprawnienia. Bez przejęcia radia w ciemno. | Raw HCI przez socket FreeBSD zwrócił errno=43. Port BTstack bez nowego backendu nie wystarczy. Sukces utworzenia socketu też nie dowodziłby podłączenia radia. |
 | D. Podmiana u konsumentów scePad | Stan DualSense wczytuje hook Read/ReadState zamiast nowego urządzenia. | Dostęp do transportu oraz pokrycie Shell, gier, przycisku PS i cyklu połączenia. | Hook w jednej grze jest kontrolą ograniczenia, nie globalnym rozwiązaniem. Jeśli potrzebny jest stale fizyczny DS4 lub nie obejmuje Shell, wariant nie spełnia celu. Nie instalowano hooków. |
 
-**Preferowana dalsza droga: A**, z ustaleniem granicy odmowy parowania,
-zanim rozważymy rozszerzenie klasyfikacji lub translator. B pozostaje alternatywą
+**Preferowana dalsza droga: A**, z ustaleniem stanu istniejącego połączenia,
+kanałów HID i dostarczenia raportów przed translatorami. B pozostaje alternatywą
 tylko po znalezieniu rzeczywistego interfejsu Orbis. C ma największy koszt i
 ryzyko konfliktu z systemowym właścicielem radia. D nie rozwiązuje transportu.
 Nie wykazano jeszcze wykonalności żadnej kompletnej drogi na 12.52.

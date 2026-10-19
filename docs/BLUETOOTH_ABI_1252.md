@@ -1,5 +1,11 @@
 # Bluetooth HID — ustalenia z własnej konsoli 12.52
 
+**Aktualizacja 2026-10-20:** istniejące połączenie bez USB jest potwierdzone
+przez właściciela. Wykonano wariant pasywny 35 s: callback=0, join=0,
+zdarzenia=0. Nie powtarzać poniższych historycznych instrukcji Create+PS lub
+restartu. Obecny eksperyment zachowuje sesję; brak zdarzeń nie rozstrzyga
+stanu L2CAP. [Wyniki](research/EXISTING_BT_SESSION.md).
+
 Właściciel wyraźnie zatwierdził lokalny odczyt i analizę biblioteki Sony.
 Segmenty pozostają wyłącznie w ignorowanym `build/hardware/`; nie dołączamy
 ich do repozytorium, paczek ani dokumentacji. Poniżej są własne wnioski o ABI,

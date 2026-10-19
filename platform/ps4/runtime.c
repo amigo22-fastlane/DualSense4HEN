@@ -161,9 +161,13 @@ int d4h_module_owned(int h)
 }
 void d4h_pin_module(int h)
 {
+    d4h_keep_module(h,"no public BluetoothHidTerm export");
+}
+void d4h_keep_module(int h,const char *reason)
+{
     for (unsigned i=0;i<8;++i) if (modules[i].active && modules[i].handle==h) {
         modules[i].owned=0;
-        d4h_log("module=0x%x pinned until host restart; no public BluetoothHidTerm export\n",h);
+        d4h_log("module=0x%x retained until host restart: %s\n",h,reason);
     }
 }
 static void write_all(const char *p,size_t n)

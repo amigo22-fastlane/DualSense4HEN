@@ -171,3 +171,30 @@ FreeBSD HCI (36/3/134) i L2CAP (36/5/135) zwróciły -1/errno=43. ELF zakończy�
 się exit=0; nie rejestrował urządzenia ani nie wysyłał komend radia.
 Nie dowodzi to fizycznej niezgodności Bluetooth lub braku innych API Orbis.
 Pełna interpretacja, hash i czas: [NATIVE_BT_GATE.md](research/NATIVE_BT_GATE.md).
+
+## Istniejące połączenie Bluetooth — 2026-10-20
+
+Właściciel potwierdził DualSense jako Kontroler z zielonym Połączono, także
+bez kabla USB; podświetlenie trwa, lecz X i PS nie sterują menu. Nie zmieniano
+tego połączenia, parowania ani konfiguracji.
+
+Wykonano 35-sekundowy observer **bez RegisterDevice**. Init=0, callback=0,
+trzy fazy i powiadomienia wykonane, unregister=0, join=0; callbacks/events/
+parsed/invalid=0/0/0/0. Sonda rev1 nie wykonała kontroli Pad: own UserService
+Init zwrócił 0x80960003 (ALREADY_INITIALIZED według OpenOrbis). To błąd
+warunku wejścia sondy, nie wynik transportu DualSense.
+
+Rev2 najpierw odczytała istniejącą listę użytkowników: ret=0 bez Init.
+W osobnym wariancie Pad-only, bez nowej subskrypcji BT, otwarto normalnego
+klienta scePad: Init=0, info=0/connected=1, 347 odczytów/0 błędów. Jednak X
+w fazie DualSense=0 i kontrolny L2 na DS4=0. Właściciel potwierdził wykonanie
+obu faz i dalsze działanie DS4 w menu oraz połączenia DualSense. **Kontrola
+dodatnia nie przeszła**: brak X nie dowodzi braku globalnej rejestracji pada.
+Własny uchwyt zamknięto z wynikiem 0. Nie zmieniano przywilejów ani fokusu.
+
+Stan ACL, uwierzytelnienia/bondingu, HID Control/Interrupt oraz globalnego
+scePad pozostaje nieustalony. Nie zrównujemy UI z kanałami HID ani braku
+callbacków z brakiem raportów. Moduł Bluetooth zachowano po zakończeniu
+własnego watchera. Nie restartować PS4 dla ponowienia tego eksperymentu.
+Szczegóły, hashe, instrukcja i następny audyt:
+[EXISTING_BT_SESSION.md](research/EXISTING_BT_SESSION.md).

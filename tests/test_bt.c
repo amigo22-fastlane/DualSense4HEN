@@ -82,7 +82,11 @@ int main(void)
         CHECK(initializations==1 && callbacks==1 && pins==1 && uncallbacks==1 && joins==1);
 #ifdef D4H_BT_PASSIVE
         CHECK(ret==0 && registrations==0);
+#ifdef D4H_BT_CONNECTED
+        CHECK(clock_us==(mode==5?0:35000000u));
+#else
         CHECK(clock_us==(mode==5?0:30000000u));
+#endif
 #else
         CHECK(ret==-38 && registrations==1 && clock_us==0);
 #endif

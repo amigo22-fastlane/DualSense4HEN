@@ -21,10 +21,29 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Research transport test compilation failed' }
     & ./build/host/test_transport_research.exe
     if ($LASTEXITCODE -ne 0) { throw 'Research transport tests failed' }
-    foreach ($variant in @('registered','passive')) {
+    & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -Iinclude src/hid.c src/bt_monitor.c tests/test_bt_monitor.c -o build/host/test_bt_monitor.exe
+    if ($LASTEXITCODE -ne 0) { throw 'BT monitor compilation failed' }
+    & ./build/host/test_bt_monitor.exe
+    if ($LASTEXITCODE -ne 0) { throw 'BT monitor tests failed' }
+    $padTypeHeader="$root/.tools/OpenOrbis/PS4Toolchain/include/orbis/_types/pad.h"
+    if (Test-Path $padTypeHeader) {
+        New-Item -ItemType Directory -Force build/test-headers/orbis/_types | Out-Null
+        Copy-Item -LiteralPath $padTypeHeader -Destination build/test-headers/orbis/_types/pad.h
+        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -Iinclude -isystem build/test-headers platform/ps4/pad_snapshot.c tests/test_pad_snapshot.c -o build/host/test_pad_snapshot.exe
+        if ($LASTEXITCODE -ne 0) { throw 'Pad snapshot compilation failed' }
+        & ./build/host/test_pad_snapshot.exe
+        if ($LASTEXITCODE -ne 0) { throw 'Pad snapshot tests failed' }
+    }
+    & $Zig cc -std=c11 -Wall -Wextra -Werror -g -O1 -DD4H_HID_CONTROL_ABI_DUMP -Iinclude platform/ps4/probe.c tests/test_hidcontrol_audit.c -o build/host/test_hidcontrol_audit.exe
+    if ($LASTEXITCODE -ne 0) { throw 'HID Control audit mock compilation failed' }
+    & ./build/host/test_hidcontrol_audit.exe
+    if ($LASTEXITCODE -ne 0) { throw 'HID Control audit mocks failed' }
+    foreach ($variant in @('registered','passive','connected')) {
         $btFlags=@()
         if ($variant -eq 'passive') { $btFlags=@('-DD4H_BT_PASSIVE') }
-        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 @btFlags -Iinclude platform/ps4/bt_observer.c tests/test_bt.c -o "build/host/test_bt_$variant.exe"
+        $btSources=@()
+        if ($variant -eq 'connected') { $btFlags=@('-DD4H_BT_PASSIVE','-DD4H_BT_CONNECTED'); $btSources=@('src/bt_monitor.c') }
+        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 @btFlags -Iinclude platform/ps4/bt_observer.c @btSources tests/test_bt.c -o "build/host/test_bt_$variant.exe"
         if ($LASTEXITCODE -ne 0) { throw 'BT mock compilation failed' }
         & "./build/host/test_bt_$variant.exe"
         if ($LASTEXITCODE -ne 0) { throw 'BT mock tests failed' }
