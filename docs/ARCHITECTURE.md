@@ -1,5 +1,9 @@
 # Architektura
 
+Poniżej opisano pierwotną implementację. Niezależna rewizja na gałęzi badawczej:
+[ARCHITECTURE_REVIEW.md](research/ARCHITECTURE_REVIEW.md). VDA i Control4Free
+nie są uznawane za konieczne składniki każdej możliwej architektury.
+
 ```text
 wewnętrzny BT PS4 [ABI/parowanie jeszcze niezweryfikowane]
               albo USB [tylko eksperyment odbioru]
@@ -16,7 +20,8 @@ wewnętrzny BT PS4 [ABI/parowanie jeszcze niezweryfikowane]
 ```
 
 Wtyczki GoldHEN z analizowanych projektów działają w procesie gry.
-Globalne urządzenie wymaga payloadu i VDA. Żadna warstwa parsera nie zna
+W tej implementacji globalne urządzenie projektowano jako payload z VDA;
+nie dowodzi to, że VDA jest jedyną drogą do systemowego wejścia. Parser nie zna
 Bluetooth API Orbis, socketów Linux, FreeBSD netgraph ani urządzeń `/dev/hidraw`.
 
 Interfejs backendu VDA pozwala uruchomić identyczną logikę z testowym sinkiem.

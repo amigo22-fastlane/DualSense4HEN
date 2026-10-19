@@ -1,0 +1,6 @@
+{
+  "url": "https://raw.githubusercontent.com/torvalds/linux/cd4f494ba535e848e2d299707d363de84e61a518/drivers/hid/hid-playstation.c",
+  "commit": "cd4f494ba535e848e2d299707d363de84e61a518",
+  "sha256": "48a08dddf8d276a611195311a29cd4f113a949a1f5431ecc84b0396b106ec896",
+  "license": "GPL-2.0-or-later; audited only, no code copied"
+}

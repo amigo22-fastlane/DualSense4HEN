@@ -7,5 +7,6 @@
 *.exe
 *.elf
 !/dist/diagnostics/*.elf
+!/dist/research/*.elf
 *.prx
 __pycache__/

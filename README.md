@@ -1,5 +1,11 @@
 # DualSense4HEN
 
+Gałąź `codex/architecture-research-1252` zachowuje bazę `13aa707` i dodaje
+[niezależną ocenę architektur](docs/research/ARCHITECTURE_REVIEW.md).
+Nowy ELF zbadał alternatywny transport HCI/L2CAP bez sceUsbd, rejestracji HID
+i VDA: kontrola IPv4 działa, kontrakty Bluetooth FreeBSD zwróciły errno=43.
+To ograniczenie konkretnego interfejsu, nie odrzucenie bezpośredniego BT.
+
 Prototyp badawczy natywnego DualSense → wirtualny DualShock 4 na PS4.
 Cel: bezpośredni Bluetooth z wewnętrznym modułem PS4, menu systemowe i gry,
 bez telefonu, PC, Remote Play i adaptera podczas użytkowania.

@@ -2,6 +2,18 @@
   "audit_date": "2026-10-19",
   "repositories": [
     {
+      "name": "bluepad32",
+      "url": "https://github.com/ricardoquesada/bluepad32.git",
+      "commit": "80d6314e46f871719fbb4b721a2cc02227c4f369",
+      "branch": "main"
+    },
+    {
+      "name": "btstack",
+      "url": "https://github.com/bluekitchen/btstack.git",
+      "commit": "e38553977a25fb0b55b383c72c289be0975f422c",
+      "branch": "master"
+    },
+    {
       "name": "Control4Free",
       "url": "https://github.com/MoHadiShibli/Control4Free",
       "commit": "5a8f9e3d0e75378644e7f7b2df6176c386a24da9",
@@ -29,6 +41,12 @@
       "name": "Enhanced-PS5-DualSense-Haptics-Bridge",
       "url": "https://github.com/ragnarok179/Enhanced-PS5-DualSense-Haptics-Bridge",
       "commit": "fc0f23ec719a1ddc39c2e76c655a7de39fd793b7",
+      "branch": "main"
+    },
+    {
+      "name": "freebsd-src",
+      "url": "https://github.com/freebsd/freebsd-src.git",
+      "commit": "e45c7bc6115ef3cd9567a397e1351c608c0269a7",
       "branch": "main"
     },
     {

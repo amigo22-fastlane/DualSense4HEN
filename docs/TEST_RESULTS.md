@@ -100,3 +100,23 @@ gotowość i wykonano osiem prób opisanych w `HARDWARE_RESULTS.md`.
   PayLoader nadal widzi 054c:0ce6 i deskryptor, lecz nie odbiera raportów.
   Audyt open O_RDONLY /dev/usbctl działa w obu kontekstach. Wersja 1.03 nadal
   ma count=0, errno=1 po enumeracji. Nie potwierdzono rzeczywistego naciśnięcia X.
+
+## 2026-10-19 — niezależna gałąź architektury od 13aa707
+
+- `tools/test-host.ps1`: rdzeń 42403, nowy transport research **21289**,
+  BT 92/382, USB 10911/11058/11233 kontroli PASS.
+- Python: 13 testów OK. W tej sesji użyto ścieżki PowerShell/Zig; CMake nie
+  jest dostępny lokalnie. Cel CMake/CTest rozszerzono o nowy test; nie nazywamy
+  go lokalnie wykonanym CTest lub testem sanitizerów.
+- Nowy test obejmuje dokładne trzy kontrakty socketów, fd=0, brak kontroli
+  pozytywnej, odmowę uprawnień i nieudany close, bez nieograniczonych prób.
+- ACL/HIDP: pełna i każda fragmentacja raportu syntetycznego, kontynuacje,
+  handle/CID/PSM, CRC, granice bufora i 10000 uszkodzonych ramek. Bez realnego HCI.
+- Cross-kompilacja: ELF native-bt-gate oraz obiekty ACL i parsera dla PS4.
+  ELF przeszedł check-elf.py: ET_DYN, 3 LOAD, brak importów i W+X.
+- **Pomiar PS4**: firmware 0x12520001, socket IPv4 fd=25/close=0,
+  HCI i L2CAP fd=-1/errno=43; complete=0, exit=0. Nie wykonywano pairing,
+  transmisji, USB, VDA, prywatnych ioctl lub patchy. To wąski negatywny wynik
+  kontraktu socketów FreeBSD w PayLoaderze, nie dowód braku natywnego BT.
+- Szczegóły i instrukcja: `research/NATIVE_BT_GATE.md`. Nowe wyniki są oddzielone
+  od bazy; nie zmieniono wcześniej dystrybuowanych ELF/PKG.

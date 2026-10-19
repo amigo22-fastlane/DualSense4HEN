@@ -42,3 +42,16 @@ zatwierdzonego wyraźnie przez właściciela. Kod/binarne segmenty Sony, pełne 
 systemowe i disassembly **nie są dystrybuowane**. `bt_observer.c` jest własną
 implementacją klienta tego interfejsu; profil zawiera identyfikator wersji kodu
 i udokumentowany slot danych używany wyłącznie do odczytu uchwytu wątku.
+
+Na gałęzi badawczej gate HCI/L2CAP używa wyłącznie stałych z odziedziczonych
+nagłówków Bluetooth FreeBSD w SDK. Zachowano ich notice BSD-2-Clause Maksima
+Yevmenkina: `third_party/licenses/FreeBSD-Bluetooth-BSD.txt`. Nie linkujemy
+libbluetooth FreeBSD ani implementacji netgraph na PC lub PS4.
+
+Nowe `acl_input.c`, `socket_gate.c` i `native_bt_gate.c` są własnym kodem GPL-3.0-only;
+nie linkują adaptera pochodzącego z Control4Free. Audytowane Bluepad32
+(Apache-2.0; parser ma także oznaczenie MIT), FreeBSD ps5dsense (BSD-2-Clause),
+Linux hid-playstation (GPL-2.0-or-later) i BTstack pozostały materiałem analizy.
+BTstack ma dodatkowy warunek niekomercyjnego użycia w audytowanej licencji;
+nie włączamy go do dystrybucji. Licencja samego Bluepad32 nie pokrywa stosu
+zależnego. Rewizje i zakres: `docs/research/ARCHITECTURE_REVIEW.md`.

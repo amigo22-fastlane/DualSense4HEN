@@ -162,3 +162,12 @@ z etykietą EPERM z nagłówka SDK, lecz nie identyfikuje konkretnego ioctl ani
 warunku sterownika. Nie wykonano ioctl bezpośrednio, obejścia uprawnień,
 zmiany authid, praw urządzeń lub patcha jądra. W tej konfiguracji zwykła
 aplikacja nie dostarczyła wejścia USB, a PayLoader nadal napotyka błąd transferu.
+
+## Niezależna gałąź architektury po 13aa707
+
+Eksperyment native-bt-gate nie powtarza USB. W procesie PayLoadera na tej samej
+12.52 kontrola IPv4 utworzyła fd=25 i zamknęła go z wynikiem 0. Kontrakty
+FreeBSD HCI (36/3/134) i L2CAP (36/5/135) zwróciły -1/errno=43. ELF zakończył
+się exit=0; nie rejestrował urządzenia ani nie wysyłał komend radia.
+Nie dowodzi to fizycznej niezgodności Bluetooth lub braku innych API Orbis.
+Pełna interpretacja, hash i czas: [NATIVE_BT_GATE.md](research/NATIVE_BT_GATE.md).

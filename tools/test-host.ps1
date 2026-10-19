@@ -17,6 +17,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'C compilation failed' }
     & ./build/host/test_core.exe
     if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+    & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -Iinclude src/hid.c src/acl_input.c src/socket_gate.c tests/test_transport_research.c -o build/host/test_transport_research.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Research transport test compilation failed' }
+    & ./build/host/test_transport_research.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Research transport tests failed' }
     foreach ($variant in @('registered','passive')) {
         $btFlags=@()
         if ($variant -eq 'passive') { $btFlags=@('-DD4H_BT_PASSIVE') }
