@@ -120,3 +120,9 @@ gotowość i wykonano osiem prób opisanych w `HARDWARE_RESULTS.md`.
   kontraktu socketów FreeBSD w PayLoaderze, nie dowód braku natywnego BT.
 - Szczegóły i instrukcja: `research/NATIVE_BT_GATE.md`. Nowe wyniki są oddzielone
   od bazy; nie zmieniono wcześniej dystrybuowanych ELF/PKG.
+- Po wysłaniu kodu zaobserwowano **GitHub Actions success** dla commita
+  `7259532d6964bf628f3dc8fa3511004ba3d7ed67`:
+  [run 39330057806](https://github.com/amigo22-fastlane/DualSense4HEN/actions/runs/39330057806).
+  Workflow wykonuje CMake/CTest z ASan/UBSan i testy Python. Obejmuje rdzeń,
+  transport research oraz mocki BT; opcjonalne mocki USB uruchomiono lokalnie,
+  ponieważ CI nie otrzymuje nagłówka SDK. To test hosta, nie test radia PS4.
