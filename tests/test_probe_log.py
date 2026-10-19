@@ -30,6 +30,10 @@ class ProbeLogTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             appended_log(b'old log', b'new log')
 
+    def test_revision_three(self):
+        log = b'USB probe revision=3 begin;\nUSB summary good=1\nprobe exit=0\n'
+        self.assertIn('reports completion', usb_outcome(log))
+
     def test_last_run_wins(self):
         log = (b'USB probe revision=2 begin;\nUSB summary good=1\nprobe exit=0\n'
                b'USB probe revision=2 begin;\nprobe exit=-22\n')

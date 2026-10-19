@@ -20,12 +20,13 @@ niezgodności modułów Bluetooth. Nie potwierdzono konieczności patcha jądra.
    przez systemowy proces obsługujący ekran Bluetooth; `libSceBluetoothHid`
    nie dostarcza potwierdzonego publicznego API parowania. Publiczna lista
    `libSceHidControl` zawiera connect/info, lecz bez wykazanego ABI bonding.
-4. **Najpierw USB ze sprawdzonym nowym kablem danych** według `USB_RETEST.md`.
-   Stary kabel nie pozwalał wykryć DualSense na PC, więc wcześniejszy pusty
-   wynik nie rozstrzyga ograniczeń PS4. Jeśli wynik się powtórzy, porównać
-   enumerację w samodzielnym kontekście aplikacji OpenOrbis
-   i procesie PayLoadera oraz zweryfikować backend/ABI `sceUsbd`. Zapis logu
-   `count=0, first=NULL` nie rozstrzyga uprawnień ani przejęcia przez sterownik.
+4. **USB z nowym kablem wykonano:** count=1, DualSense 054c:0ce6, deskryptor
+   HID 289 B odczytany; nadal zero wejścia, interrupt=0x802400ff. Poprzedni
+   pusty wynik nie opisuje obecnej konfiguracji. Lokalny audyt sceUsbd ujawnił
+   translację statusów i brakujące parametry sprzątania; poprawiono kod.
+   Następnie porównać ten sam odbiór w samodzielnym kontekście aplikacji
+   OpenOrbis i procesie PayLoadera. Status/errno po API nie zastępuje śledzenia
+   konkretnego błędu backendu. Szczegóły: `USBD_ABI_EXPERIMENT.md`.
 5. Dopiero po odebraniu i walidacji realnych raportów włączyć VDA z kontrolą
    własności nowego urządzenia, korelacją klog i odtworzeniem uprawnień.
    Następnie testować przyciski w menu i grze, odłączenie, reconnect i rest mode.

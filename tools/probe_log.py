@@ -9,9 +9,9 @@ def appended_log(before: bytes, after: bytes) -> bytes:
 
 def usb_outcome(log: bytes) -> str:
     # Do not interpret an old cumulative exit=0 as evidence of a new USB run.
-    start = log.rfind(b'USB probe revision=2 begin;')
+    start = log.rfind(b'USB probe revision=')
     if start < 0:
-        return 'USB revision 2 execution unconfirmed (no new USB start marker).'
+        return 'USB execution unconfirmed (no new USB start marker).'
     run = log[start:]
     if b'probe exit=' not in run:
         return 'USB run incomplete; fetch the log again after capture ends.'

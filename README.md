@@ -23,8 +23,8 @@ Sprzęt zgłoszony przez właściciela: PS4 Slim, firmware **12.52**, GoldHEN
 - Test sprzętowy: Init=0, RegisterCallback=0, RegisterDevice=0x81540002,
   UnregisterCallback=0, join=0. Znaczenie błędu rejestracji jest nieustalone.
 - Poprzedni test USB zwrócił pustą listę; właściciel następnie wykrył problem
-  kabla. Rewizja 2 czeka na powtórzenie ze sprawdzonym kablem danych:
-  [procedura i logi](docs/USB_RETEST.md). Odbiór USB pozostaje niepotwierdzony.
+  kabla. Nowy kabel pozwolił wyliczyć DualSense i odczytać deskryptor HID; odczyt wejścia nadal zwraca błąd:
+  [procedura i logi](docs/USB_RETEST.md). Nie odebrano raportów wejściowych USB.
 
 ## Testy na komputerze
 

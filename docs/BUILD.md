@@ -48,6 +48,19 @@ na lokalny odczyt kodu własnej konsoli. Nie publikuj uzyskanych segmentów.
 Capstone 5.0.3 był użyty wyłącznie do lokalnej analizy; nie jest zależnością
 parsera, observera, testów ani kompilacji ELF.
 
+Opcjonalne warianty USB budowane lokalnie:
+
+- `-IncludeUsbAltZero`: osobny `dualsense4hen-usb-alt0-probe.elf`, wybiera
+  wyłącznie istniejące ustawienie HID alt 0. Na tej konsoli zwróciło błąd.
+- `-IncludeUsbdAbiDump`: `dualsense4hen-usbd-abi-probe.elf`, odczyt wyłącznie
+  RX/R biblioteki libSceUsbd; wymaga osobnej zgody właściciela na tę bibliotekę.
+  W tej sesji zgodę uzyskano i wykonano audyt, a pliki z PS4 usunięto.
+  Zakres i ustalenia: `USBD_ABI_EXPERIMENT.md`. Ten ELF nie jest w dist.
+
+Aktualny zwykły ELF USB (rewizja 6) zawiera tylko odczyty HID, parser,
+podgląd mapowania, diagnostykę errno i skorygowane ABI sprzątania; nie kopiuje
+biblioteki Sony. Zwykła kompilacja nadal buduje trzy ELF-y oraz vda.o.
+
 ## ELF na Linux
 
 Przygotowano `Makefile.ps4` dla Clang/lld i nagłówków SDK:

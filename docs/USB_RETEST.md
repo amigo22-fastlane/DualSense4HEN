@@ -7,12 +7,13 @@ Docelowy sprzęt: PS4 Slim, 12.52, GoldHEN v2.4b18.12.
 
 ## Ocena poprzedniego ELF
 
-Poprzedni `dualsense4hen-usb-probe.elf` nadaje się do powtórzenia bez zmian:
-limit odbioru 30 s, timeout pojedynczego odczytu 100 ms, zwalnianie interfejsu,
-zamknięcie uchwytu, brak detach/reset i patchy jądra. Pierwszą enumerację
-wykonuje tylko raz: kontroler trzeba podłączyć **przed** wysłaniem ELF.
+Stary ELF miał ograniczony czas odbioru i zwalniał interfejs, ale późniejszy
+audyt ujawnił niepełną sygnaturę FreeDeviceList w użytym nagłówku OpenOrbis.
+Do kolejnych prób używaj rewizji 6 z jawnym drugim argumentem zwalniania listy.
+Ta korekta zastępuje wcześniejszą ocenę możliwości ponownego użycia bez zmian.
+Enumeracja pozostaje jednorazowa: podłącz kontroler przed wysłaniem ELF.
 
-Do nowego testu zalecana jest przygotowana **rewizja 2**, w tym samym pliku
+Do nowego testu zalecana jest przygotowana **rewizja 6**, w tym samym pliku
 `dist/diagnostics/dualsense4hen-usb-probe.elf`. Poprzedni plik pozostaje w
 historii Git (`53facea`, SHA-256
 `a241fb4f2a92d859a469786e7378a32690ea57070bfea68152d746fed835d980`).
@@ -21,9 +22,22 @@ Rewizja 2 loguje wszystkie odczytane VID/PID i statusy odczytu deskryptorów,
 konfigurację celu oraz interfejsy i endpointy. Dekoduje i mapuje każdy poprawny
 raport do 120-bajtowego stanu PS4; zapisuje do 120 próbek rozmieszczonych co
 najmniej 250 ms w całym oknie. Nie wywołuje VDA, nie zmienia uprawnień i nie
-tworzy DS4. Nie odczytuje jeszcze HID report descriptor przez control transfer.
+tworzy DS4. Rewizja 5 dodała odczyt deskryptora raportów HID i pojedynczą
+próbę GET_REPORT(Input, ID 1), ze snapshotem errno. Rewizja 6 poprawia ABI
+zwalniania listy oraz obsługę natywnego timeoutu.
 Próbuje przejąć wyłącznie standardowy DualSense `054c:0ce6`, HID alt 0 z
 interrupt IN o rozmiarze pakietu co najmniej 64 B; inne urządzenia tylko opisuje.
+
+## Dotychczasowy wynik nowego kabla
+
+Testy wykonano zdalnie za zgodą i po potwierdzeniu gotowości właściciela;
+nie trzeba uruchamiać dodatkowej kopii w PowerShell. API wykryło jeden
+DualSense 054c:0ce6, odczytało konfigurację i 289-bajtowy deskryptor raportów
+HID, Open/Claim/Release zwróciły 0. Nadal nie odebrano raportów wejściowych:
+interrupt 128/64 B zwraca 0x802400ff. GET_REPORT zwraca 0x80240004.
+Rewizja 5 zapisała przy tych wywołaniach odpowiednio errno=35 i errno=5.
+Sam errno po wieloetapowej operacji nie rozstrzyga, które wewnętrzne wywołanie
+było przyczyną. Szczegóły i wariant alt 0: `HARDWARE_RESULTS.md`.
 
 ## Przygotowanie i uruchomienie
 

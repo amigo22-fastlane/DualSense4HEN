@@ -25,6 +25,10 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'USB mock tests compilation failed' }
         & ./build/host/test_usb.exe
         if ($LASTEXITCODE -ne 0) { throw 'USB mock tests failed' }
+        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -DD4H_USB_ALT_ZERO_PROBE -Iinclude -isystem build/test-headers -include tests/usb_compat.h src/hid.c src/ps4_pad.c platform/ps4/usb_probe.c tests/test_usb.c -o build/host/test_usb_alt0.exe
+        if ($LASTEXITCODE -ne 0) { throw 'USB alt 0 mock tests compilation failed' }
+        & ./build/host/test_usb_alt0.exe
+        if ($LASTEXITCODE -ne 0) { throw 'USB alt 0 mock tests failed' }
     } else { Write-Output 'USB mock tests skipped: SDK descriptor header unavailable' }
 } finally {
     $env:TEMP=$oldTemp; $env:TMP=$oldTmp; $env:ZIG_GLOBAL_CACHE_DIR=$oldCache

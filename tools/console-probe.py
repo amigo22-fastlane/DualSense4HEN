@@ -71,7 +71,8 @@ if args.elf:
     with socket.create_connection((args.host, args.loader_port), timeout=8) as sock:
         sock.sendall(data)
         sock.shutdown(socket.SHUT_WR)
-    print('ELF sent; perform the input sequence now. TCP send does not prove execution.', flush=True)
+    prompt = 'perform the input sequence now. ' if args.elf.name.startswith('dualsense4hen-usb-') else ''
+    print(f'ELF sent; {prompt}TCP send does not prove execution.', flush=True)
 
 if args.elf or args.fetch_only:
     time.sleep(args.wait)
@@ -97,5 +98,5 @@ if args.elf or args.fetch_only:
     lines = result.decode('utf-8', errors='replace').splitlines()
     print('\n'.join(lines[-max(1,args.print_lines):]))
     print(f'{"Newly appended" if args.elf else "Full cumulative"} console log saved to {args.output}')
-    if args.elf:
+    if args.elf and (b'USB probe revision=' in result or args.elf.name.startswith('dualsense4hen-usb-')):
         print(usb_outcome(result))

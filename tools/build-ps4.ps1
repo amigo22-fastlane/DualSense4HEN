@@ -1,7 +1,9 @@
 param(
     [string]$Zig = "$PSScriptRoot/../.tools/zig-windows-x86_64-0.13.0/zig.exe",
     [string]$Sdk = "$PSScriptRoot/../.tools/ps4-payload-sdk",
-    [switch]$IncludeAbiDump
+    [switch]$IncludeAbiDump,
+    [switch]$IncludeUsbAltZero,
+    [switch]$IncludeUsbdAbiDump
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
@@ -20,9 +22,17 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'BT probe compilation failed' }
     & $Zig @common -DD4H_USB_PROBE platform/ps4/usb_probe.c src/hid.c src/ps4_pad.c -o build/ps4/dualsense4hen-usb-probe.elf
     if ($LASTEXITCODE -ne 0) { throw 'USB probe compilation failed' }
+    if ($IncludeUsbAltZero) {
+        & $Zig @common -DD4H_USB_PROBE -DD4H_USB_ALT_ZERO_PROBE platform/ps4/usb_probe.c src/hid.c src/ps4_pad.c -o build/ps4/dualsense4hen-usb-alt0-probe.elf
+        if ($LASTEXITCODE -ne 0) { throw 'USB alt 0 probe compilation failed' }
+    }
     if ($IncludeAbiDump) {
         & $Zig @common -DD4H_ABI_DUMP -o build/ps4/dualsense4hen-bt-abi-probe.elf
         if ($LASTEXITCODE -ne 0) { throw 'BT ABI probe compilation failed' }
+    }
+    if ($IncludeUsbdAbiDump) {
+        & $Zig @common -DD4H_USB_ABI_DUMP -o build/ps4/dualsense4hen-usbd-abi-probe.elf
+        if ($LASTEXITCODE -ne 0) { throw 'USBD ABI probe compilation failed' }
     }
     & $Zig @common -DD4H_BT_OBSERVER platform/ps4/bt_observer.c src/hid.c -o build/ps4/dualsense4hen-bt-observer.elf
     if ($LASTEXITCODE -ne 0) { throw 'BT observer compilation failed' }
@@ -30,6 +40,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'VDA prototype cross compilation failed' }
     $built=@('build/ps4/dualsense4hen-bt-probe.elf','build/ps4/dualsense4hen-usb-probe.elf','build/ps4/dualsense4hen-bt-observer.elf')
     if ($IncludeAbiDump) { $built+='build/ps4/dualsense4hen-bt-abi-probe.elf' }
+    if ($IncludeUsbAltZero) { $built+='build/ps4/dualsense4hen-usb-alt0-probe.elf' }
+    if ($IncludeUsbdAbiDump) { $built+='build/ps4/dualsense4hen-usbd-abi-probe.elf' }
     Get-FileHash $built -Algorithm SHA256 | Format-Table -AutoSize
 } finally {
     $env:TEMP=$oldTemp; $env:TMP=$oldTmp; $env:ZIG_GLOBAL_CACHE_DIR=$oldCache

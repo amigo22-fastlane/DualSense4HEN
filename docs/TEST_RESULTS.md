@@ -51,3 +51,26 @@
   w tym 0x802f3701 → 0x81540002. To analiza offline, nie nowy eksperyment BT.
 - Nowy kabel jest potwierdzony na PC przez właściciela. **Nowy pomiar PS4
   jeszcze nie został wykonany/potwierdzony**. Szczegóły: `USB_RETEST.md`.
+
+## 2026-10-19 — wykonanie ponownego pomiaru i audyt USB
+
+Powyższy wpis opisuje stan przygotowania; następnie właściciel potwierdził
+gotowość i wykonano osiem prób opisanych w `HARDWARE_RESULTS.md`.
+
+- Końcowe `tools/test-host.ps1`: **PASS 42403** kontroli rdzenia,
+  **PASS USB 10504** standardowej sondy, **PASS USB 10642** wariantu alt 0.
+  Testy obejmują pakiet 64 B, natywny błąd i timeout, odczyty kontrolne,
+  uszkodzone/niepełne extra HID, brak opcjonalnego eksportu, snapshot errno,
+  zwolnienie po nieudanym wyborze alt i jawny drugi argument FreeDeviceList.
+- **7 testów Python OK**: rozdzielanie nowej sesji od skumulowanych logów,
+  odmowy i niekompletne uruchomienia, rozpoznawanie nowszych rewizji.
+- Sześć ELF-ów przeszło walidację: trzy dystrybucyjne, opcjonalny alt 0 oraz
+  dwie sondy audytu ABI (BT i USBD). BT probe i observer zachowały poprzednie sumy.
+- Końcowy dystrybuowany USB rev 6:
+  `5a3fd7ff571de753792ac6a93ea251b12d7ac709989e932658e374a17beaf88d`.
+  Wykonano go na konsoli; log: enumeracja i deskryptor HID OK, brak raportów
+  wejścia, zwolnienie interfejsu=0, exit=-6. To częściowa diagnostyka sprzętowa,
+  nie pozytywny test sterownika do grania.
+- Odczyt biblioteki USBD wykonano po osobnej zgodzie; RX/R zostały lokalnie,
+  RW nie odczytano, oba tymczasowe pliki usunięto z konsoli. Nie publikujemy
+  kodu Sony ani deasemblacji. Nie wykonano patchy jądra i nie włączono VDA.
