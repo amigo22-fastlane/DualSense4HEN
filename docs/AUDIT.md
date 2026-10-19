@@ -1,7 +1,9 @@
 # Audyt źródeł — 2026-10-19
 
 Stan sprzętu przekazany przez właściciela: PS4 Slim, **12.52**, GoldHEN
-**v2.4b18.12**. Żadnego testu na fizycznej konsoli nie wykonano z tego środowiska.
+**v2.4b18.12**. Po pierwszym commicie wykonano testy na konsoli właściciela;
+wyniki są w `HARDWARE_RESULTS.md`. Poniższy audyt repozytoriów jest oddzielony
+od późniejszych ustaleń ABI z własnego modułu opisanych w `BLUETOOTH_ABI_1252.md`.
 Dokładne commity klonów zapisuje `sources.lock.json`. Linki poniżej wskazują
 publiczne źródła; do reprodukcji należy wybrać zapisany commit.
 
@@ -31,8 +33,8 @@ publiczne źródła; do reprodukcji należy wybrać zapisany commit.
   syscall 500 polecenia 0–7: wersja SDK, klog, jailbreak/restore, informacje
   procesu, RW, PRX load/unload. Brak udokumentowanego polecenia przechwytywania
   Bluetooth. Wersja SDK 0x100 **nie jest** numerem wydania GoldHEN 2.4b18.12.
-- [ps4dev/ps4sdk](https://github.com/ps4dev/ps4sdk), plik LICENSE i nagłówki
-  zachowują własne warunki: `sce/usbd.h` pokazuje podobne API USB, ale np.
+- [ps4dev/ps4sdk](https://github.com/ps4dev/ps4sdk), Unlicense dla własnego kodu,
+  BSD/MIT dla odziedziczonych komponentów: `sce/usbd.h` pokazuje podobne API USB, ale np.
   `FreeDeviceList` ma inną deklarację od OpenOrbis. Nie mieszamy ABI.
   `AF_BLUETOOTH` w odziedziczonym FreeBSD `sys/socket.h` nie potwierdza
   działającego socketu HCI/L2CAP na Orbis.
@@ -47,6 +49,10 @@ publiczne źródła; do reprodukcji należy wybrać zapisany commit.
   Nie ma licencji na kopiowanie bazy w klonie; zapisujemy własne wnioski i linki.
   Pierwsza próba błędnego adresu `ps4dev/ps4libdoc` nie powiodła się; właściwy
   właściciel to `idc`, gałąź ustalona przez `git ls-remote --heads`.
+- [PadBridge-PS5](https://github.com/X-F1REBALL-X/PadBridge-PS5) pojawił się
+  w indeksie wyszukiwania jako analogiczny projekt dla PS5. Bezpośredni
+  `git ls-remote` zwrócił **Repository not found**, a klon nie uzyskał HEAD.
+  Nie udajemy audytu jego źródeł ani nie traktujemy opisu jako dowodu ABI PS4.
 
 ## Mechanizm wirtualnego kontrolera
 
@@ -97,3 +103,7 @@ Następny eksperyment: odczyt wersji systemu i obecności eksportów na 12.52,
 próba systemowego wykrywania z Create+PS i zapis logów, następnie porównanie
 wywołań biblioteki w legalnie pozyskanych modułach **tej samej** konsoli.
 Nie wywoływać nieznanych funkcji z wymyśloną strukturą ani callbackiem.
+
+Późniejszy lokalny audyt modułu rozstrzygnął część sygnatur i układ callbacku.
+Nie dowiódł semantyki parowania. Test potwierdził Init i callback oraz błąd
+rejestracji 0x81540002. Nie nadajemy temu kodowi wymyślonej nazwy błędu.

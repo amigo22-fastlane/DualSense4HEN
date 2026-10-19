@@ -8,9 +8,13 @@ for path in sorted((root / 'research').iterdir()):
     if not (path / '.git').exists():
         continue
     def git(*args):
-        return subprocess.check_output(['git', '-C', str(path), *args], text=True).strip()
-    repos.append({'name': path.name, 'url': git('remote', 'get-url', 'origin'),
-                  'commit': git('rev-parse', 'HEAD'),
-                  'branch': git('branch', '--show-current')})
+        return subprocess.check_output(['git', '-C', str(path), *args], text=True, stderr=subprocess.DEVNULL).strip()
+    try:
+        repos.append({'name': path.name, 'url': git('remote', 'get-url', 'origin'),
+                      'commit': git('rev-parse', 'HEAD'),
+                      'branch': git('branch', '--show-current')})
+    except subprocess.CalledProcessError:
+        # Interrupted clones have no HEAD and cannot be presented as audited.
+        continue
 (root / 'docs' / 'sources.lock.json').write_text(
     json.dumps({'audit_date': '2026-10-19', 'repositories': repos}, indent=2) + '\n', encoding='utf-8')

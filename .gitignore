@@ -6,5 +6,6 @@
 *.obj
 *.exe
 *.elf
+!/dist/diagnostics/*.elf
 *.prx
 __pycache__/

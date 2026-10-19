@@ -17,3 +17,17 @@
   wykonano poza sandboxem, z cache i TEMP skierowanymi do `build/`.
 - CI z ASan/UBSan jest skonfigurowane, ale jego wynik z GitHub nie został
   jeszcze zaobserwowany. Lokalny wynik nie jest wynikiem sanitizerów.
+
+## 2026-10-19 — etap sprzętowy i USB mocks
+
+- Host: **PASS 42403** kontroli rdzenia oraz **PASS USB 497** kontroli
+  deskryptorów, ograniczonej pętli odbioru i sprzątania po błędach.
+- Kompilacja: trzy samodzielne ELF-y oraz `vda.o`, bez linkowania CRT SDK.
+- Walidator ELF: x86_64 ET_DYN, 3 segmenty LOAD, brak importów/interpretera,
+  tylko relokacje względne, zapisy do własnego segmentu RW, brak W+X,
+  symbole bootstrapu sekcyjne i hidden. Pierwsze błędne symbole ABS są teraz
+  wykrywane jako regresja.
+- Wyniki fizycznej PS4 opisuje `HARDWARE_RESULTS.md`: działający runtime,
+  biblioteki i callback, odrzucona rejestracja urządzenia, brak raportów.
+- GitHub Actions pierwszego commita pozostało w stanie `queued` podczas
+  odczytu. Nie deklarujemy pozytywnego wyniku CI/ASan/UBSan bez jego uzyskania.

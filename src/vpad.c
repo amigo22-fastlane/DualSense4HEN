@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* SPDX-License-Identifier: GPL-3.0-only */
 #include "ds4hen/vpad.h"
 #include <string.h>
 void d4h_vpad_init(d4h_vpad *v,d4h_vpad_ops ops)

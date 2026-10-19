@@ -1,4 +1,7 @@
-param([string]$Zig = "$PSScriptRoot/../.tools/zig-windows-x86_64-0.13.0/zig.exe")
+param(
+    [string]$Zig = "$PSScriptRoot/../.tools/zig-windows-x86_64-0.13.0/zig.exe",
+    [string]$Sdk = "$PSScriptRoot/../.tools/ps4-payload-sdk"
+)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 Push-Location $root
@@ -14,6 +17,15 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'C compilation failed' }
     & ./build/host/test_core.exe
     if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+    if (Test-Path "$Sdk/target/include/libusb.h") {
+        # Only the descriptor header; using the full PS4 sysroot for host tests would be wrong.
+        New-Item -ItemType Directory -Force build/test-headers | Out-Null
+        Copy-Item "$Sdk/target/include/libusb.h" build/test-headers/libusb.h
+        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -Iinclude -isystem build/test-headers -include tests/usb_compat.h src/hid.c platform/ps4/usb_probe.c tests/test_usb.c -o build/host/test_usb.exe
+        if ($LASTEXITCODE -ne 0) { throw 'USB mock tests compilation failed' }
+        & ./build/host/test_usb.exe
+        if ($LASTEXITCODE -ne 0) { throw 'USB mock tests failed' }
+    } else { Write-Output 'USB mock tests skipped: SDK descriptor header unavailable' }
 } finally {
     $env:TEMP=$oldTemp; $env:TMP=$oldTmp; $env:ZIG_GLOBAL_CACHE_DIR=$oldCache
     Pop-Location

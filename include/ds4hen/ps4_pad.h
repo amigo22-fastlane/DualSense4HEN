@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-3.0-or-later
+/* SPDX-License-Identifier: GPL-3.0-only
  * ScePadData layout adapted from MoHadiShibli/Control4Free (2026), GPL-3.0,
  * whose VDA code derives from seregonwar/SplashDown. See THIRD_PARTY.md.
  * Reverse engineered user-space ABI; not a public Sony SDK declaration. */

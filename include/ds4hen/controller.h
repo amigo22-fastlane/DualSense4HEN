@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* SPDX-License-Identifier: GPL-3.0-only */
 #ifndef DS4HEN_CONTROLLER_H
 #define DS4HEN_CONTROLLER_H
 #include <stddef.h>

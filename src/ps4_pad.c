@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* SPDX-License-Identifier: GPL-3.0-only */
 #include "ds4hen/ps4_pad.h"
 #include <string.h>
 static uint16_t clamp_scale(uint16_t v, uint16_t from, uint16_t to)

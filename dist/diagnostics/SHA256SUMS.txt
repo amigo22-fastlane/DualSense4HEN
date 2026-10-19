@@ -1,0 +1,3 @@
+1cce332a23f6e03c5548e759e2df8ac4bded0e34fcc5116eb14f67c5279b314e  dualsense4hen-bt-observer.elf
+0ccc616482cd280f9fd6c61a3ba63deffb267be7e3e66fdb428e24789a3e2a0f  dualsense4hen-bt-probe.elf
+a241fb4f2a92d859a469786e7378a32690ea57070bfea68152d746fed835d980  dualsense4hen-usb-probe.elf

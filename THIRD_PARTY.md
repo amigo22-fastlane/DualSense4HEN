@@ -1,6 +1,6 @@
 # Pochodzenie i licencje
 
-Projekt: GPL-3.0-or-later. Pełny tekst: `LICENSE`.
+Projekt: GPL-3.0-only. Pełny tekst: `LICENSE`.
 
 `include/ds4hen/ps4_pad.h` i `platform/ps4/vda.c` adaptują układ danych,
 parametry i kolejność wywołań z [Control4Free](https://github.com/MoHadiShibli/Control4Free),
@@ -20,3 +20,15 @@ Pozostałe repozytoria w `research/` to wyłącznie lokalny materiał audytu,
 wyłączony z Gita. Szczegóły, wersje i ograniczenia: `docs/AUDIT.md` i
 `docs/sources.lock.json`. SDK i kompilatory pozostają zewnętrznymi narzędziami;
 ich dystrybucja wymaga zachowania własnych licencji.
+
+Sondy używają nagłówka deskryptorów `libusb.h` z dystrybucji PS4 payload SDK
+v0.9 (FreeBSD, BSD-2-Clause, Sylvestre Gallon). Informacja o licencji jest
+zachowana w `third_party/licenses/libusb-BSD.txt`. Nie linkujemy libusb z PC.
+Nie linkujemy CRT SDK, który wykonuje automatyczne patche mmap i zmiany jail.
+Własny runtime korzysta z normalnych syscalli PS4 i systemowych eksportów.
+
+Ustalenia ABI biblioteki Sony pochodzą z lokalnego odczytu modułu własnej konsoli,
+zatwierdzonego wyraźnie przez właściciela. Kod/binarne segmenty Sony, pełne logi
+systemowe i disassembly **nie są dystrybuowane**. `bt_observer.c` jest własną
+implementacją klienta tego interfejsu; profil zawiera identyfikator wersji kodu
+i udokumentowany slot danych używany wyłącznie do odczytu uchwytu wątku.

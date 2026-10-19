@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-3.0-or-later
+/* SPDX-License-Identifier: GPL-3.0-only
  * Independently implemented byte decoder. Layout references: Sony's Linux
  * hid-playstation dualsense_input_report; nondebug/dualsense descriptors.
  * No operating system structures or packed pointer casts are used. */

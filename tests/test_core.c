@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* SPDX-License-Identifier: GPL-3.0-only */
 #include "ds4hen/hid.h"
 #include "ds4hen/vpad.h"
 #include "../platform/ps4/vda.h"
@@ -164,6 +164,7 @@ static void vda_contract(void)
     CHECK((uint32_t)d4h_vda_add(&b,1)==0x803b0006u);
     api.add=NULL;
     CHECK(d4h_vda_init(&b,api)==-1);
+    CHECK(!b.initialized);
 }
 int main(void)
 {

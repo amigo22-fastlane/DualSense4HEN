@@ -4,7 +4,10 @@ Prototyp badawczy natywnego DualSense → wirtualny DualShock 4 na PS4.
 Cel: bezpośredni Bluetooth z wewnętrznym modułem PS4, menu systemowe i gry,
 bez telefonu, PC, Remote Play i adaptera podczas użytkowania.
 
-**Nie jest jeszcze działającym sterownikiem Bluetooth. Nie testowano na PS4.**
+**Nie jest jeszcze działającym sterownikiem DualSense do menu i gier.**
+Kod startowy ELF, eksporty Bluetooth/VDA oraz inicjalizację i callback Bluetooth
+przetestowano na PS4. Rejestracja urządzenia `054c:0ce6` zwróciła
+`0x81540002`; nie otrzymano raportów z bezpośredniego Bluetooth.
 Sprzęt zgłoszony przez właściciela: PS4 Slim, firmware **12.52**, GoldHEN
 **v2.4b18.12**. Poprzednie 12.53 zostało przez właściciela skorygowane;
 12.53 nie jest obsługiwane ani zweryfikowane przez ten projekt.
@@ -16,6 +19,11 @@ Sprzęt zgłoszony przez właściciela: PS4 Slim, firmware **12.52**, GoldHEN
 - Adapter 120-bajtowego stanu PS4 i prototyp `scePadVirtualDevice*`.
 - Testy błędnych długości, CRC, mapowania, neutralizacji i usuwania urządzenia.
 - Syntetyczne raporty z niezależnie wygenerowanym CRC, nie próbki sprzętowe.
+- Zbudowane sondy ELF i observer Bluetooth z profilem biblioteki z PS4 12.52.
+- Test sprzętowy: Init=0, RegisterCallback=0, RegisterDevice=0x81540002,
+  UnregisterCallback=0, join=0. Znaczenie błędu rejestracji jest nieustalone.
+- Prototyp USB uruchamia się na konsoli, ale zwraca pustą listę urządzeń;
+  odbiór raportów USB pozostaje niepotwierdzony.
 
 ## Testy na komputerze
 
@@ -36,3 +44,13 @@ opcjonalna regeneracja: `python tools/make-fixtures.py`.
 
 Architektura: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 Audyt: [docs/AUDIT.md](docs/AUDIT.md). Licencje: [THIRD_PARTY.md](THIRD_PARTY.md).
+
+Budowanie ELF: [docs/BUILD.md](docs/BUILD.md).
+Instalacja i wycofanie: [docs/INSTALL_ROLLBACK.md](docs/INSTALL_ROLLBACK.md).
+Pomiary: [docs/HARDWARE_RESULTS.md](docs/HARDWARE_RESULTS.md).
+Odzyskane ABI i zasady observera: [docs/BLUETOOTH_ABI_1252.md](docs/BLUETOOTH_ABI_1252.md).
+Kolejny eksperyment: [docs/NEXT_EXPERIMENT.md](docs/NEXT_EXPERIMENT.md).
+
+W `dist/diagnostics/` są wyłącznie nasze ELF-y diagnostyczne i ich sumy.
+Nie wpisuj ich do `plugins.ini` ani AutoRun. Firmware 12.53 jest odrzucane;
+żadnych offsetów 12.52 nie przenosimy na inne wersje. Licencja: GPL-3.0-only.

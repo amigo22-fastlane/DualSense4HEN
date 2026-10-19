@@ -1,0 +1,73 @@
+# Bluetooth HID — ustalenia z własnej konsoli 12.52
+
+Właściciel wyraźnie zatwierdził lokalny odczyt i analizę biblioteki Sony.
+Segmenty pozostają wyłącznie w ignorowanym `build/hardware/`; nie dołączamy
+ich do repozytorium, paczek ani dokumentacji. Poniżej są własne wnioski o ABI,
+nie kod biblioteki. Analiza nie obejmuje jądra ani jego modyfikacji.
+
+## Potwierdzone pomiary
+
+Sonda ELF uruchomiła się przez GoldHEN w `ScePartyDaemon`. System zgłosił
+`12.520.001`, numer `0x12520001`. `libSceBluetoothHid.sprx` załadowała się
+i udostępniła wszystkie 17 eksportów znanych z PS4LibDoc. To osobne ustalenie
+od możliwości parowania konkretnego urządzenia.
+
+Kod odczytano z adresów i rozmiarów zwróconych przez
+`sceKernelGetModuleInfo`, według struktury OpenOrbis o rozmiarze 352 bajty.
+Biblioteka ma trzy segmenty po 16384 bajty: kod RX (względem bazy 0),
+dane RW (+0x8000) i dane R (+0x4000).
+
+SHA-256 segmentu kodu tej konkretnej biblioteki:
+`48a4c7f14870555d0f9843f246b705cf821167e157e37d7bb53a0ef78090afc2`.
+CRC32 z prefiksem A1 użyte jako dodatkowy identyfikator kompilacji:
+`0xb489ea13`. Nie jest to mechanizm zabezpieczeń przed złośliwym modułem;
+ma zapobiec przypadkowemu użyciu innej wersji ABI.
+
+## Odzyskane sygnatury (eksperymentalne)
+
+| Eksport | Ustalona postać i dowód przepływu argumentów |
+|---|---|
+| `sceBluetoothHidInit` | `int32_t (void)`; nie pobiera parametrów. Inicjuje mutex i otwiera `/dev/bluetooth_hid` do odczytu/zapisu. |
+| `sceBluetoothHidThreadParamInitialize` | `(param*, int priority, uint64_t affinity)`; zapisuje pola +0, +8, zeruje +16. Jeszcze niewywoływane. |
+| `sceBluetoothHidParamInitialize` | `(param*, thread_param*)`; zapisuje wskaźnik +0 i zeruje flagi +8. Jeszcze niewywoływane. |
+| `sceBluetoothHidRegisterCallback` | `(callback, void *user, const param*)`; callback musi być niezerowy, trzeci argument może być NULL. Parametry opcjonalne odsyłają do ustawień wątku. |
+| callback | `void (const event*, int count, void *user)`; watcher przekazuje tablicę, liczbę elementów oraz oryginalny user pointer. |
+| `sceBluetoothHidUnregisterCallback` | `int32_t (void)`; kasuje callback, zatrzymuje watcher i zamyka jego kqueue. Nie znaleziono wywołania join; sam unregister nie jest dowodem zakończenia wątku. |
+| `sceBluetoothHidRegisterDevice` | `int32_t (uint16_t arg1, uint16_t arg2)`; tworzy 4-bajtowy blok dwóch wartości 16-bitowych dla wewnętrznego ioctl. Wymaga wcześniej callbacku. Użycie ich jako VID/PID jest hipotezą wymagającą niezależnego potwierdzenia. **Nie ustalono API parowania**. |
+| `sceBluetoothHidUnregisterDevice` | analogiczny blok VID/PID dla cofnięcia rejestracji. |
+| `sceBluetoothHidGetInputReport` | dwa argumenty, przekierowane do helpera; pełna semantyka jeszcze nieustalona i funkcja nie jest wywoływana. |
+
+Watcher buduje elementy o rozmiarze 0x68 (104) bajtów. Ustalony układ:
+identyfikator urządzenia +0 (8 B), VID +8, PID +10, typ +12 (1 B), status
++13 (1 B), długość +14 (2 B), pole nieustalone +16 (8 B), raport +24
+(maksymalnie 78 B), końcowe wyrównanie. Callback przekazuje najwyżej 16
+elementów. Te obserwacje nie rozstrzygają jeszcze znaczenia wszystkich typów
+zdarzeń; observer waliduje rozmiar, VID/PID i cały raport wraz z CRC.
+
+## Bezpieczne zakończenie observera
+
+Nie ma publicznego eksportu `sceBluetoothHidTerm`. Po inicjalizacji sonda
+zachowuje moduł w procesie do restartu, zamiast odładować go z otwartym
+deskryptorem i mutexem. Observer odmawia przejęcia już obecnego kontekstu.
+W tej wersji oznacza to jeden eksperyment observera na uruchomienie konsoli.
+
+Do zakończenia wątku używa rzeczywistego `scePthreadJoin`, po wyrejestrowaniu
+filtra i callbacku. Uchwyt watchera biblioteka zapisuje w swoim segmencie
+danych, **+0x8048 względem bazy modułu**. To udokumentowany tu, odczytywany
+slot konkretnej biblioteki, ustalony z instrukcji zapisu po `scePthreadCreate`
+i użycia przez funkcję zmiany priorytetu/affinity. To **nie offset jądra i nie
+adres patcha**. Kod sprawdza hash całego segmentu kodu, jego rozmiar oraz
+przynależność slotu do odczytywalnego segmentu, zanim go odczyta. Nie zapisuje
+do tego slotu. Na innej bibliotece bezwarunkowo odmawia działania.
+
+Jeżeli unregister lub join nie potwierdzi końca wątku, payload pozostaje
+rezydentny z ważnym kontekstem callbacku; nie zwalnia kodu spod działającego
+wątku. Wymagany jest wtedy ręczny restart konsoli, opisany w logu. Brak
+automatycznego restartu lub zmian jądra.
+
+Observer może otworzyć 180-sekundowe okno po udanej rejestracji. W wykonanym
+teście rejestracja zwróciła 0x81540002, więc do okna nie doszło. Nie wywołuje
+operacji bond, nie zapisuje
+kluczy Bluetooth, nie dotyka konfiguracji systemowej ani nie udaje udanego
+parowania. Test: odłączyć kabel DualSense, wejść do systemowej listy urządzeń
+Bluetooth i użyć Create+PS. Wynik odmowy/powodzenia trzeba zapisać osobno.
