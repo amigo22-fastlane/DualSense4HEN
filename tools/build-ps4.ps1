@@ -3,6 +3,8 @@ param(
     [string]$Sdk = "$PSScriptRoot/../.tools/ps4-payload-sdk",
     [switch]$IncludeAbiDump,
     [switch]$IncludeUsbAltZero,
+    [switch]$IncludeBtPassive,
+    [switch]$IncludeUsbAccessAudit,
     [switch]$IncludeUsbdAbiDump
 )
 $ErrorActionPreference = 'Stop'
@@ -22,6 +24,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'BT probe compilation failed' }
     & $Zig @common -DD4H_USB_PROBE platform/ps4/usb_probe.c src/hid.c src/ps4_pad.c -o build/ps4/dualsense4hen-usb-probe.elf
     if ($LASTEXITCODE -ne 0) { throw 'USB probe compilation failed' }
+    if ($IncludeUsbAccessAudit) {
+        & $Zig @common -DD4H_USB_PROBE -DD4H_USB_ACCESS_AUDIT platform/ps4/usb_probe.c src/hid.c src/ps4_pad.c -o build/ps4/dualsense4hen-usb-access-probe.elf
+        if ($LASTEXITCODE -ne 0) { throw 'USB access audit compilation failed' }
+    }
     if ($IncludeUsbAltZero) {
         & $Zig @common -DD4H_USB_PROBE -DD4H_USB_ALT_ZERO_PROBE platform/ps4/usb_probe.c src/hid.c src/ps4_pad.c -o build/ps4/dualsense4hen-usb-alt0-probe.elf
         if ($LASTEXITCODE -ne 0) { throw 'USB alt 0 probe compilation failed' }
@@ -36,11 +42,17 @@ try {
     }
     & $Zig @common -DD4H_BT_OBSERVER platform/ps4/bt_observer.c src/hid.c -o build/ps4/dualsense4hen-bt-observer.elf
     if ($LASTEXITCODE -ne 0) { throw 'BT observer compilation failed' }
+    if ($IncludeBtPassive) {
+        & $Zig @common -DD4H_BT_OBSERVER -DD4H_BT_PASSIVE platform/ps4/bt_observer.c src/hid.c -o build/ps4/dualsense4hen-bt-passive.elf
+        if ($LASTEXITCODE -ne 0) { throw 'BT passive observer compilation failed' }
+    }
     & $Zig cc -target x86_64-freestanding -std=c11 -Wall -Wextra -Werror -O2 -ffreestanding -fno-builtin -fno-stack-protector -fPIC -isystem "$Sdk/target/include" -Iinclude -c platform/ps4/vda.c -o build/ps4/vda.o
     if ($LASTEXITCODE -ne 0) { throw 'VDA prototype cross compilation failed' }
     $built=@('build/ps4/dualsense4hen-bt-probe.elf','build/ps4/dualsense4hen-usb-probe.elf','build/ps4/dualsense4hen-bt-observer.elf')
     if ($IncludeAbiDump) { $built+='build/ps4/dualsense4hen-bt-abi-probe.elf' }
     if ($IncludeUsbAltZero) { $built+='build/ps4/dualsense4hen-usb-alt0-probe.elf' }
+    if ($IncludeBtPassive) { $built+='build/ps4/dualsense4hen-bt-passive.elf' }
+    if ($IncludeUsbAccessAudit) { $built+='build/ps4/dualsense4hen-usb-access-probe.elf' }
     if ($IncludeUsbdAbiDump) { $built+='build/ps4/dualsense4hen-usbd-abi-probe.elf' }
     Get-FileHash $built -Algorithm SHA256 | Format-Table -AutoSize
 } finally {

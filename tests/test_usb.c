@@ -1,11 +1,16 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Mock sceUsbd boundary. Does not call libusb or console APIs. */
 #include "../platform/ps4/runtime.h"
+#include "ds4hen/usb_diagnostic.h"
 #include <libusb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#ifdef D4H_USB_ACCESS_AUDIT
+#include <fcntl.h>
+static unsigned audit_opened,audit_closed;
+#endif
 int d4h_usb_probe(void);
 d4h_runtime d4h_rt;
 static unsigned checks;
@@ -19,6 +24,22 @@ static unsigned long long last_parse_ms;
 static int controls,control_maps;
 static int dev_token,handle_token;
 static int fake_errno;
+#ifdef D4H_USB_ACCESS_AUDIT
+static int audit_open(const char *path,int flags,...)
+{
+    CHECK(!strcmp(path,"/dev/usbctl") && flags==O_RDONLY);
+    ++audit_opened;
+    if (mode==21) { fake_errno=13; return -1; }
+    return 88;
+}
+static int audit_close(int fd) { CHECK(fd==88); ++audit_closed; return 0; }
+#endif
+static unsigned observed,observed_x;
+static void observe(const d4h_state *state,uint64_t time)
+{
+    CHECK(state && time>0); ++observed;
+    if (state->buttons&D4H_CROSS) ++observed_x;
+}
 static int *error_address(void) { return &fake_errno; }
 #ifdef D4H_USB_ALT_ZERO_PROBE
 static int alt_calls;
@@ -92,6 +113,7 @@ static int32_t transfer(libusb_device_handle *h,unsigned char e,unsigned char *p
     p[8]=8; p[33]=p[37]=0x80; *got=64;
     if (mode==13) p[8]=15; /* Invalid hat: never map it. */
     if (mode==11 && clock_us>20000000) p[10]=1; /* PS late in capture. */
+    if (mode==20 && clock_us>=15000000 && clock_us<25000000) p[8]|=0x20; /* X down/up. */
     return 0;
 }
 static int32_t control(libusb_device_handle *h,uint8_t type,uint8_t request,uint16_t value,
@@ -147,10 +169,15 @@ static void reset(int m)
     raw_samples=mapped_samples=parse_samples=0; log_size=0; logs[0]=0; last_parse_ms=0;
     controls=control_maps=0;
     fake_errno=77;
+    d4h_usb_input=0; observed=observed_x=0;
 #ifdef D4H_USB_ALT_ZERO_PROBE
     alt_calls=0;
 #endif
     memset(&d4h_rt,0,sizeof(d4h_rt)); d4h_rt.time_us=time_us;
+#ifdef D4H_USB_ACCESS_AUDIT
+    d4h_rt.open=audit_open; d4h_rt.close=audit_close;
+    audit_opened=audit_closed=0;
+#endif
     memset(&config,0,sizeof(config)); memset(iface,0,sizeof(iface));
     memset(alt,0,sizeof(alt)); memset(endpoint,0,sizeof(endpoint));
     devices[0]=(libusb_device *)&dev_token; devices[1]=NULL;
@@ -169,6 +196,11 @@ int main(void)
 {
     reset(0); CHECK(d4h_usb_probe()==0); CHECK(reads>0 && claimed==1 && released==1 && closed==1);
     CHECK(freed_config==1 && freed_list==1 && exited==1 && unloaded==1);
+#ifdef D4H_USB_ACCESS_AUDIT
+    CHECK(audit_opened==1 && audit_closed==1 && fake_errno==77);
+    reset(21); CHECK(d4h_usb_probe()==0 && audit_opened==1 && !audit_closed && fake_errno==77);
+    CHECK(strstr(logs,"result=-1 errno=13; no ioctl")!=NULL);
+#endif
     reset(1); CHECK(d4h_usb_probe()==-20 && !exited && !unloaded);
     reset(2); CHECK(d4h_usb_probe()==-21 && !exited && unloaded==1);
     reset(3); CHECK(d4h_usb_probe()==-22 && freed_list==1 && exited==1);
@@ -189,6 +221,9 @@ int main(void)
     CHECK(strstr(logs,"io_error=0x802400ff")!=NULL);
     CHECK(strstr(logs,"bytes=0 errno=45")!=NULL && fake_errno==77);
     reset(19); CHECK(d4h_usb_probe()==-5 && reads>1 && released==1 && closed==1 && !mapped_samples);
+    reset(20); d4h_usb_input=observe; CHECK(d4h_usb_probe()==0 && observed==(unsigned)reads && observed_x>0);
+    CHECK(strstr(logs,"USB input X=1")!=NULL && strstr(logs,"x_changes=2")!=NULL);
+    reset(13); d4h_usb_input=observe; CHECK(d4h_usb_probe()==-5 && !observed);
     reset(15); CHECK(d4h_usb_probe()==0 && controls==2 && control_maps==1 && released==1);
     reset(16); alt[1].extra_length=2; CHECK(d4h_usb_probe()==0 && controls==1 && !control_maps);
     reset(17); CHECK(d4h_usb_probe()==0 && !controls && released==1);

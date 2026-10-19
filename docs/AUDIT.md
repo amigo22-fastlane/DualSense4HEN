@@ -107,3 +107,19 @@ Nie wywoływać nieznanych funkcji z wymyśloną strukturą ani callbackiem.
 Późniejszy lokalny audyt modułu rozstrzygnął część sygnatur i układ callbacku.
 Nie dowiódł semantyki parowania. Test potwierdził Init i callback oraz błąd
 rejestracji 0x81540002. Nie nadajemy temu kodowi wymyślonej nazwy błędu.
+
+## OpenOrbis i diagnostyka w zwykłej aplikacji
+
+Dodano oficjalną dystrybucję OpenOrbis v0.5.4 jako zewnętrzne narzędzie
+(archiwum i hash w BUILD.md), lokalne źródła OpenOrbis/musl oraz LibOrbisPkg
+z rewizjami w sources.lock.json. Normalny CRT aplikacji i statyczna musl są
+oddzielne od patchującego CRT payload SDK, którego projekt nie linkuje.
+COPYRIGHT musl, licencja compiler-rt i NOTICE trafiają do własnego PKG.
+LibOrbisPkg jest narzędziem zewnętrznym; jego walidator potwierdza format
+Content ID z czteroliterowym prefiksem tytułu, co ujawniło błąd pierwszej paczki.
+
+Wykonane pomiary wykazały, że aplikacja OpenOrbis 1.02/1.03 widzi pustą listę
+sceUsbd, choć PayLoader przy tym samym kablu wykrywa DualSense. Otworzenie
+/dev/usbctl z O_RDONLY działa w obu kontekstach. To własne obserwacje Orbis,
+nie przeniesienie modelu uprawnień Linux/FreeBSD. Nie zdiagnozowano dokładnej
+odmowy backendu, nie wdrożono zmian authid, praw urządzeń ani hooków ioctl.

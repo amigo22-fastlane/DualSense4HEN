@@ -6,6 +6,14 @@
 #include <fcntl.h>
 #include <sys/file.h>
 #include <string.h>
+#ifdef D4H_APPLICATION
+#include <stdio.h>
+#include <orbis/libkernel.h>
+#include "ds4hen/usb_diagnostic.h"
+#define D4H_LOG_PATH "/data/dualsense4hen-app.log"
+#else
+#define D4H_LOG_PATH "/data/dualsense4hen-probe.log"
+#endif
 
 d4h_runtime d4h_rt;
 static int log_fd=-1;
@@ -13,6 +21,7 @@ static int lock_fd=-1;
 static struct { int handle,active,owned; } modules[8];
 /* PS4 syscall numbers and console-write operation checked against the SDK's
  * target/include/sys/syscall.h and crt/klog.c, not assumed from Linux. */
+#ifndef D4H_APPLICATION
 static long syscall3(long number,long a,long b,long c)
 {
     long result; unsigned char failed;
@@ -25,9 +34,14 @@ static long syscall3(long number,long a,long b,long c)
                      : "rcx","r11","memory");
     return failed ? -result : result;
 }
+#endif
 static void bootlog(const char *msg)
 {
+#ifdef D4H_APPLICATION
+    (void)sceKernelDebugOutText(0,"%s",msg);
+#else
     (void)syscall3(601,7,(long)msg,0);
+#endif
 }
 static void boothex(const char *label,uint64_t value)
 {
@@ -45,8 +59,15 @@ static void bootfile(const char *msg)
     size_t n=0;
     while (msg[n]) ++n;
     bootlog(msg);
-    if (log_fd>=0) (void)syscall3(4,log_fd,(long)msg,(long)n);
+    if (log_fd>=0) {
+#ifdef D4H_APPLICATION
+        (void)sceKernelWrite(log_fd,msg,n);
+#else
+        (void)syscall3(4,log_fd,(long)msg,(long)n);
+#endif
+    }
 }
+#ifndef D4H_APPLICATION
 void *memset(void *p,int value,size_t n)
 {
     unsigned char *q=p;
@@ -59,9 +80,14 @@ void *memcpy(void *p,const void *src,size_t n)
     for (size_t i=0;i<n;++i) q[i]=r[i];
     return p;
 }
+#endif
 static long lookup(int handle,const char *name,void **address)
 {
+#ifdef D4H_APPLICATION
+    return sceKernelDlsym(handle,name,address);
+#else
     return syscall3(591,(long)handle,(long)name,(long)address);
+#endif
 }
 int d4h_resolve(int handle,const char *symbol,void *dst,size_t size)
 {
@@ -80,6 +106,19 @@ static int kernel_symbol(const char *name,void *dst,size_t n)
 #define KSYM(member,name) kernel_symbol(name,&d4h_rt.member,sizeof(d4h_rt.member))
 int d4h_module(const char *path,const char *anchor)
 {
+#ifdef D4H_APPLICATION
+    char sandbox_path[256];
+    const char prefix[]="/system/common/lib/";
+    if (!strncmp(path,prefix,sizeof(prefix)-1)) {
+        const char *word=sceKernelGetFsSandboxRandomWord();
+        size_t length=0;
+        if (word) while (length<65 && word[length]) ++length;
+        if (!length || length>64) { d4h_log("invalid application sandbox library root\n"); return -1; }
+        int n=snprintf(sandbox_path,sizeof(sandbox_path),"/%s/common/lib/%s",word,path+sizeof(prefix)-1);
+        if (n<=0 || (size_t)n>=sizeof(sandbox_path)) return -1;
+        path=sandbox_path; /* Uses the process's own mounted system libraries. */
+    }
+#endif
     int32_t handles[256]; size_t count=0; unsigned slot=0;
     int ret=d4h_rt.get_modules(handles,sizeof(handles),&count);
     if (ret || count>256) { d4h_log("module inventory failed=0x%x count=%zu; abort load\n",ret,count); return -1; }
@@ -141,6 +180,17 @@ void d4h_log(const char *fmt,...)
     __builtin_va_start(args,fmt);
     int n=d4h_rt.vsnprintf(buf,sizeof(buf),fmt,args);
     __builtin_va_end(args);
+#ifdef D4H_APPLICATION
+    if (n>0) {
+        /* Sandbox-safe diagnostic sink: absence of global /data must not
+         * prevent testing USB in the unmodified application context. */
+        char line[800]; const char prefix[]="[d4h] app ";
+        size_t size=(size_t)n<sizeof(buf)?(size_t)n:sizeof(buf)-1;
+        memcpy(line,prefix,sizeof(prefix)-1);
+        memcpy(line+sizeof(prefix)-1,buf,size);
+        line[sizeof(prefix)-1+size]=0; bootlog(line);
+    }
+#endif
     if (n>0) write_all(buf,(size_t)n<sizeof(buf)?(size_t)n:sizeof(buf)-1);
 }
 void d4h_hex(const char *label,const uint8_t *p,size_t n)
@@ -159,6 +209,7 @@ int d4h_stopping(void)
     if (fd<0) return 0;
     d4h_rt.close(fd); return 1;
 }
+#ifndef D4H_APPLICATION
 /* Local ELF contains only relative relocations, no imports. Relocation is
  * idempotent if the loader already applied it. No process memory is patched
  * outside this ELF's own data segment. Build validation rejects other types. */
@@ -201,28 +252,55 @@ static int relocate(void)
         *(uintptr_t *)(base+r[i].offset)=base+(uintptr_t)r[i].addend;
     return 0;
 }
-int _start(void)
+#endif
+static int run_diagnostic(void)
 {
-    bootlog("[d4h] bootstrap entered\n");
-    if (relocate()) { bootlog("[d4h] relocation rejected\n"); return -1; }
-    log_fd=(int)syscall3(5,(long)"/data/dualsense4hen-probe.log",O_WRONLY|O_CREAT|O_APPEND,0600);
+#ifdef D4H_APPLICATION
+    /* Use declared libkernel entry points in an ordinary application, rather
+     * than assuming the PayLoader's direct-syscall context applies here. */
+    log_fd=sceKernelOpen(D4H_LOG_PATH,O_WRONLY|O_CREAT|O_TRUNC,0600);
+    int global_log_result=log_fd;
+    if (log_fd<0)
+        log_fd=sceKernelOpen("/download0/dualsense4hen-app.log",O_WRONLY|O_CREAT|O_TRUNC,0600);
+    boothex("[d4h] app global log open result=",(uint64_t)(int64_t)global_log_result);
+#else
+    log_fd=(int)syscall3(5,(long)D4H_LOG_PATH,O_WRONLY|O_CREAT|O_APPEND,0600);
+#endif
+#ifdef D4H_APPLICATION
+    boothex("[d4h] app log open result=",(uint64_t)(int64_t)log_fd);
+#endif
     bootfile("[d4h] bootstrap relocated; resolving imports\n");
     memset(&d4h_rt,0,sizeof(d4h_rt));
     memset(modules,0,sizeof(modules));
     if (KSYM(open,"open") || KSYM(write,"write") || KSYM(read,"read") ||
-        KSYM(close,"close") || KSYM(flock,"flock") || KSYM(usleep,"usleep") ||
+        KSYM(close,"close") || KSYM(usleep,"usleep") ||
+#ifndef D4H_APPLICATION
+        KSYM(flock,"flock") ||
+#endif
         KSYM(get_modules,"sceKernelGetModuleList") ||
         KSYM(time_us,"sceKernelGetProcessTime") ||
         KSYM(load_module,"sceKernelLoadStartModule") ||
         KSYM(unload_module,"sceKernelStopUnloadModule")) {
-        if (log_fd>=0) (void)syscall3(6,log_fd,0,0);
+        if (log_fd>=0) {
+#ifdef D4H_APPLICATION
+            (void)sceKernelClose(log_fd);
+#else
+            (void)syscall3(6,log_fd,0,0);
+#endif
+        }
         log_fd=-1; return -2;
     }
+#ifdef D4H_APPLICATION
+    /* OpenOrbis musl linked into the application, not the daemon's module 2. */
+    d4h_rt.vsnprintf=vsnprintf;
+#else
     if (d4h_resolve(2,"vsnprintf",&d4h_rt.vsnprintf,sizeof(d4h_rt.vsnprintf))) {
         bootfile("[d4h] vsnprintf unavailable in module 2\n");
         if (log_fd>=0) d4h_rt.close(log_fd);
         log_fd=-1; return -3;
     }
+#endif
+#ifndef D4H_APPLICATION
     lock_fd=d4h_rt.open("/data/dualsense4hen-probe.lock",O_RDWR|O_CREAT,0600);
     if (lock_fd<0) { if (log_fd>=0) d4h_rt.close(log_fd); log_fd=-1; return -4; }
     if (d4h_rt.flock(lock_fd,LOCK_EX|LOCK_NB)) {
@@ -231,11 +309,33 @@ int _start(void)
         log_fd=-1; return -5;
     }
     if (log_fd<0) { d4h_rt.close(lock_fd); lock_fd=-1; return -6; }
-    d4h_log("\nDualSense4HEN diagnostic: userspace bootstrap, no SDK CRT or kernel patches\n");
+#endif
+    d4h_log("\nDualSense4HEN diagnostic: userspace bootstrap, no kernel patches\n");
+#ifdef D4H_APPLICATION
+    d4h_log("execution context=OpenOrbis application " D4H_APP_VERSION "; global_log=0x%x selected_log_fd=%d\n",global_log_result,log_fd);
+#else
+    d4h_log("execution context=PayLoader host; log=%s\n",D4H_LOG_PATH);
+#endif
     int ret=d4h_probe_main();
     d4h_log("probe exit=%d\n",ret);
     for (unsigned i=0;i<8;++i) if (modules[i].active) d4h_release_module(modules[i].handle);
-    d4h_rt.close(log_fd); log_fd=-1;
-    d4h_rt.close(lock_fd); lock_fd=-1;
+    if (log_fd>=0) d4h_rt.close(log_fd);
+    log_fd=-1;
+    if (lock_fd>=0) d4h_rt.close(lock_fd);
+    lock_fd=-1;
     return ret; /* Never exit or kill the host daemon. */
 }
+#ifdef D4H_APPLICATION
+int d4h_app_run(void)
+{
+    bootlog("[d4h] standalone app entered (OpenOrbis CRT)\n");
+    return run_diagnostic();
+}
+#else
+int _start(void)
+{
+    bootlog("[d4h] bootstrap entered\n");
+    if (relocate()) { bootlog("[d4h] relocation rejected\n"); return -1; }
+    return run_diagnostic();
+}
+#endif

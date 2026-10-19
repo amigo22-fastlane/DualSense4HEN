@@ -74,8 +74,10 @@ int d4h_bt_observe(void)
     if (D4H_RESOLVE(h,api,init,"sceBluetoothHidInit") ||
         D4H_RESOLVE(h,api,callback,"sceBluetoothHidRegisterCallback") ||
         D4H_RESOLVE(h,api,uncallback,"sceBluetoothHidUnregisterCallback") ||
+#ifndef D4H_BT_PASSIVE
         D4H_RESOLVE(h,api,register_device,"sceBluetoothHidRegisterDevice") ||
         D4H_RESOLVE(h,api,unregister_device,"sceBluetoothHidUnregisterDevice") ||
+#endif
         kernel_fn("scePthreadJoin",&api.join,sizeof(api.join)) ||
         kernel_fn("sceKernelGetModuleInfo",&api.info,sizeof(api.info))) return -32;
     info.size=sizeof(info);
@@ -106,6 +108,18 @@ int d4h_bt_observe(void)
     if (ret) return -37;
     void *worker=0;
     memcpy(&worker,(const void *)worker_slot,sizeof(worker));
+#ifdef D4H_BT_PASSIVE
+    /* Audited callback registration creates its own event watcher before any
+     * device filter is registered. Whether the driver routes events in this
+     * mode remains a hardware question, not an assumed pairing mechanism. */
+    d4h_log("BT passive observation 30s: no RegisterDevice, no pairing call\n");
+    uint64_t begin=d4h_rt.time_us();
+    for (unsigned i=0;i<300 && !d4h_stopping();++i) {
+        uint64_t now=d4h_rt.time_us();
+        if (now<begin || now-begin>=30000000u) break;
+        d4h_rt.usleep(100000);
+    }
+#else
     ret=api.register_device(0x054c,0x0ce6);
     d4h_log("sceBluetoothHidRegisterDevice(054c,0ce6)=0x%x\n",ret);
     if (!ret) {
@@ -118,6 +132,7 @@ int d4h_bt_observe(void)
         }
         d4h_log("sceBluetoothHidUnregisterDevice=0x%x\n",api.unregister_device(0x054c,0x0ce6));
     }
+#endif
     int unreg=api.uncallback();
     d4h_log("sceBluetoothHidUnregisterCallback=0x%x\n",unreg);
     void *thread_result=0;

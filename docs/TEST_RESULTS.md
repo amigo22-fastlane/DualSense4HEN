@@ -74,3 +74,29 @@ gotowość i wykonano osiem prób opisanych w `HARDWARE_RESULTS.md`.
 - Odczyt biblioteki USBD wykonano po osobnej zgodzie; RX/R zostały lokalnie,
   RW nie odczytano, oba tymczasowe pliki usunięto z konsoli. Nie publikujemy
   kodu Sony ani deasemblacji. Nie wykonano patchy jądra i nie włączono VDA.
+
+## 2026-10-19 — aplikacja i pasywny observer
+
+- Rdzeń C: **42403 kontroli PASS**; standard USB: **10911**, alt 0: **11058**,
+  audyt dostępu USB: **11233** (w tym odmowa open i odtworzenie errno).
+  Dodano testy callbacku dopiero po poprawnym raporcie i logowania zboczy X.
+- BT mock: **92 kontrole** wariantu rejestracji i **382** wariantu pasywnego.
+  Sprawdzają odmowę wspólnego kontekstu i niezgodnego profilu, Init/callback
+  error, pin modułu, unregister+join, limit 30 sekund/stop oraz brak wywołania
+  RegisterDevice w wariancie pasywnym. Nie są testem parowania ani sterownika.
+- Python: **13 testów OK**, w tym regresja pierwszego błędnego identyfikatora
+  PKG i spójność metadanych. CI rozszerzono o testy Python i mocki BT; nowego
+  wyniku GitHub Actions nie przypisujemy do lokalnych testów.
+- Zbudowano aplikację OpenOrbis 1.03, SELF i PKG. PkgTool potwierdził hashe
+  i podpisy, własny walidator potwierdził spójność TITLE_ID/CONTENT_ID w SFO,
+  GP4 i nagłówku PKG. Właściciel potwierdził później instalację i pomiar 1.03;
+  wynik nie potwierdza wejścia HID.
+- Cztery nowe ELF-y (probe, USB, observer i passive) przeszły check-elf.py;
+  następnie osobno sprawdzono wariant USB access przed uruchomieniem.
+  Dotychczasowe trzy pliki dist/diagnostics zachowano jako zidentyfikowane
+  sprzętowo wersje; nowy passive jest osobnym, jeszcze nietestowanym na PS4
+  artefaktem. Zmiany runtime we wspólnym źródle dają nowe hashe przy przebudowie.
+- Sprzęt: 1.02 dostarczyła log: Init=0, lista pusta, exit=-22. Porównawczy
+  PayLoader nadal widzi 054c:0ce6 i deskryptor, lecz nie odbiera raportów.
+  Audyt open O_RDONLY /dev/usbctl działa w obu kontekstach. Wersja 1.03 nadal
+  ma count=0, errno=1 po enumeracji. Nie potwierdzono rzeczywistego naciśnięcia X.

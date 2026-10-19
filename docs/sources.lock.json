@@ -44,6 +44,18 @@
       "branch": "main"
     },
     {
+      "name": "LibOrbisPkg",
+      "url": "https://github.com/maxton/LibOrbisPkg.git",
+      "commit": "643477263b2644e0803e0f58b8726ea4e3f3b7d4",
+      "branch": "master"
+    },
+    {
+      "name": "openorbis-musl",
+      "url": "https://github.com/OpenOrbis/musl.git",
+      "commit": "2b0bb8ce2fa64ac255cb656785729d159a5f074c",
+      "branch": "master"
+    },
+    {
       "name": "OpenOrbis-PS4-Toolchain",
       "url": "https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain",
       "commit": "0a1aaf9dd4a92695538bdeb09fb056d06dd11725",

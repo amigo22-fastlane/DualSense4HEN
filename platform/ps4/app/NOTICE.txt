@@ -1,0 +1,15 @@
+DualSense4HEN USB Diagnostic
+Source and build instructions: https://github.com/amigo22-fastlane/DualSense4HEN
+Project code: GPL-3.0-only (LICENSE.txt).
+
+This standalone application links OpenOrbis musl (MIT and notices in
+OpenOrbis-musl-COPYRIGHT.txt) and LLVM compiler-rt (Apache 2.0 with LLVM
+exceptions, LLVM-compiler-rt.txt). OpenOrbis's empty libc/Fios2 PRX stubs
+are built from OpenOrbis source (GPL-3.0); they are not Sony console binaries.
+
+OpenOrbis SDK v0.5.4: https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain
+musl source: https://github.com/OpenOrbis/musl
+compiler-rt source: https://github.com/llvm/llvm-project/tree/llvmorg-18.1.6/compiler-rt
+
+No Sony library dump, kernel patch or controller output command is included.
+USB diagnostics are experimental. Package validation is not a PS4 hardware test.

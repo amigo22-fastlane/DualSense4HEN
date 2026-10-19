@@ -10,3 +10,4 @@
 *.ld text eol=lf
 Makefile* text eol=lf
 *.elf binary
+*.pkg binary

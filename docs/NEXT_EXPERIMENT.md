@@ -11,11 +11,11 @@ niezgodności modułów Bluetooth. Nie potwierdzono konieczności patcha jądra.
    Odtworzono typy i przekazanie dwóch 16-bitowych wartości; etykiety VID/PID
    pozostają hipotezą do potwierdzenia po stronie sterownika. Nie testować
    losowych wartości ani wildcardów bez ustalonej semantyki.
-2. W nowej sesji observera obserwować również zdarzenia cyklu połączenia,
-   zachowując callback po odrzuconym filtrze, o ile audyt potwierdzi, że taka
-   obserwacja jest poprawnym użyciem API. Zestawić log z normalną próbą
-   Create+PS i komunikatem systemowej listy urządzeń Bluetooth. Nie wdrożono
-   jeszcze tego wariantu; obecny observer zatrzymuje się po odmowie.
+2. Zbudowano oddzielny pasywny observer bez RegisterDevice, po audycie tworzenia
+   watchera przez RegisterCallback. Ma 30-sekundowe okno i te same warunki
+   bezpiecznego join. Nie testowano go na konsoli. Zestawić przyszły log
+   z normalną próbą Create+PS i komunikatem systemowej listy Bluetooth;
+   brak zdarzeń nadal nie rozstrzygnie fizycznej zgodności modułu.
 3. Rozdzielić dostęp HID od bond/discovery. Sprawdzić wywołania `/dev/bt`
    przez systemowy proces obsługujący ekran Bluetooth; `libSceBluetoothHid`
    nie dostarcza potwierdzonego publicznego API parowania. Publiczna lista
@@ -24,8 +24,19 @@ niezgodności modułów Bluetooth. Nie potwierdzono konieczności patcha jądra.
    HID 289 B odczytany; nadal zero wejścia, interrupt=0x802400ff. Poprzedni
    pusty wynik nie opisuje obecnej konfiguracji. Lokalny audyt sceUsbd ujawnił
    translację statusów i brakujące parametry sprzątania; poprawiono kod.
-   Następnie porównać ten sam odbiór w samodzielnym kontekście aplikacji
-   OpenOrbis i procesie PayLoadera. Status/errno po API nie zastępuje śledzenia
+   Zbudowano i zainstalowano samodzielną aplikację OpenOrbis. Wersja 1.00
+   ujawniła crash przy CRT _exit, a 1.01 wystartowała i zakończyła się bez
+   zgłoszonego błędu, lecz bez logu USB. Wersja 1.02 używa deklarowanych
+   wrapperów libkernel i logu: Init=0, lista pusta. PayLoader zaraz potem widział
+   054c:0ce6 i deskryptor, lecz transfer był nadal odrzucony. Wersja 1.03
+   potwierdziła open O_RDONLY /dev/usbctl także w aplikacji (errno=0), ale
+   count=0 i errno=1 po enumeracji pozostały. W PayLoaderze count=1.
+   Następnie zlokalizować w zatwierdzonej lokalnej kopii biblioteki dokładną
+   ścieżkę odmowy enumeracji i otwarcia endpointu. Przed osobną sondą query
+   ustalić pełne ABI i wykazać, że operacja jest tylko do odczytu. Samo errno
+   po API nie wystarcza; nie wdrożono hooków ani prywatnych ioctl.
+   Nie zmieniać praw urządzeń ani authid.
+   Procedura: USB_APP.md. Status/errno po API nie zastępuje śledzenia
    konkretnego błędu backendu. Szczegóły: `USBD_ABI_EXPERIMENT.md`.
 5. Dopiero po odebraniu i walidacji realnych raportów włączyć VDA z kontrolą
    własności nowego urządzenia, korelacją klog i odtworzeniem uprawnień.

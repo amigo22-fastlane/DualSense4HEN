@@ -24,8 +24,18 @@ ich dystrybucja wymaga zachowania własnych licencji.
 Sondy używają nagłówka deskryptorów `libusb.h` z dystrybucji PS4 payload SDK
 v0.9 (FreeBSD, BSD-2-Clause, Sylvestre Gallon). Informacja o licencji jest
 zachowana w `third_party/licenses/libusb-BSD.txt`. Nie linkujemy libusb z PC.
-Nie linkujemy CRT SDK, który wykonuje automatyczne patche mmap i zmiany jail.
-Własny runtime korzysta z normalnych syscalli PS4 i systemowych eksportów.
+Payloady nie linkują CRT payload SDK, który wykonuje automatyczne patche mmap
+i zmiany jail. Własny runtime payloadu korzysta ze sprawdzonych syscalli PS4.
+
+Samodzielna aplikacja jest osobnym celem: linkuje zwykły CRT i statyczną libc
+z oficjalnego OpenOrbis v0.5.4, po audycie startupu OpenOrbis/musl. Nie wykonuje
+helperów jailbreak ani zmian poświadczeń. Zachowane pełne informacje licencyjne:
+`third_party/licenses/OpenOrbis-musl-COPYRIGHT.txt`. Linkowany compiler-rt ma
+Apache-2.0 z LLVM exception: `third_party/licenses/LLVM-compiler-rt.txt`.
+PKG zawiera również te teksty, GPL projektu i `platform/ps4/app/NOTICE.txt`.
+Dołączone libc.prx i libSceFios2.prx to puste stuby z dystrybucji OpenOrbis,
+nie moduły skopiowane z konsoli. Narzędzie LibOrbisPkg (LGPL-3.0) pozostaje
+zewnętrznym narzędziem, bez kopiowania jego implementacji do projektu.
 
 Ustalenia ABI biblioteki Sony pochodzą z lokalnego odczytu modułu własnej konsoli,
 zatwierdzonego wyraźnie przez właściciela. Kod/binarne segmenty Sony, pełne logi

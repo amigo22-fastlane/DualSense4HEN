@@ -70,7 +70,42 @@ make -f Makefile.ps4 PS4_PAYLOAD_SDK=/opt/ps4-payload-sdk
 ```
 
 Ta konkretna ścieżka Makefile nie została uruchomiona w środowisku Windows.
-Zbudowano i sprawdzono ścieżkę PowerShell/Zig. Nie ma fikcyjnego PRX/PKG:
-observer jest payloadem systemowego HID, a adapter VDA pozostaje prototypem
-testowanym na hoście. Docelowa aplikacja/AutoRun powstaną po potwierdzeniu
-parowania, odbioru i globalnego wejścia.
+Zbudowano i sprawdzono ścieżkę PowerShell/Zig. Adapter VDA pozostaje prototypem
+testowanym na hoście; poniższy PKG służy diagnostyce USB, nie globalnemu wejściu.
+
+## Samodzielny PKG OpenOrbis na Windows
+
+Wykonana kompilacja: `tools/build-app.ps1`, Zig 0.13.0 + OpenOrbis v0.5.4
+([oficjalne wydanie](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/releases/tag/v0.5.4)).
+Pobrano `toolchain-llvm-18.tar.gz`, SHA-256
+`3c7cd5bb593ca74fa1c13fd59f3938dc0fc07985167f7275063019e63abe4526`.
+Domyślna lokalizacja po rozpakowaniu: `.tools/OpenOrbis/PS4Toolchain`.
+Używany jest także pojedynczy nagłówek libusb.h z payload SDK opisany wyżej.
+
+```powershell
+./tools/build-app.ps1 -Sdk C:/tools/OpenOrbis/PS4Toolchain -Zig C:/tools/zig/zig.exe -UsbHeader C:/tools/ps4-payload-sdk/target/include/libusb.h -Python python
+```
+
+Skrypt kompiluje C, linkuje przez `zig ld.lld` z `link.x`, normalnym CRT,
+statyczną libc OpenOrbis i compiler-rt, następnie tworzy SELF, SFO, GP4 i PKG
+narzędziami Windows z SDK. Nie używa CRT payload SDK ani jego patchy.
+PkgTool.Core wymaga .NET; w tej sesji lokalnie dostępny .NET 7/8 uruchomił
+narzędzie z procesowym `DOTNET_ROLL_FORWARD=Major`. Zmienna jest przywracana
+po kompilacji; nie instalowano systemowego .NET 3.
+
+Wyjście: `build/app/IV0000-DSHN00001_00-DS4HENUSBDIAG001.pkg`.
+Dystrybucja: `dist/app/DualSense4HEN-USB-Diagnostic.pkg`, wersja 1.03.
+Zwykły ELF w build/app służy do konwersji SELF, nie do PayLoadera.
+Weryfikacja obejmuje hashe/podpis PKG oraz własny walidator spójności SFO,
+GP4 i nagłówka PKG. Regresja błędnego prefiksu tytułu jest w testach Python.
+Poprawna struktura nie zastępuje instalacji i pomiaru na PS4.
+
+Opcjonalny `./tools/build-ps4.ps1 -IncludeBtPassive` buduje oddzielny
+`build/ps4/dualsense4hen-bt-passive.elf`: callback bez RegisterDevice, maks. 30 s.
+To wariant do przyszłego pomiaru, nie implementacja parowania. Warunki profilu
+i wycofanie są takie jak observera; zobacz `BLUETOOTH_ABI_1252.md`.
+
+`-IncludeUsbAccessAudit` buduje dodatkowy `dualsense4hen-usb-access-probe.elf`.
+To ten sam kod USB z odczytem dostępu open O_RDONLY + close do /dev/usbctl,
+bez dodatkowych ioctl; wariant skompilowano, przetestowano na atrapach i
+uruchomiono w PayLoaderze. Aplikacja 1.03 włącza taki sam audyt.

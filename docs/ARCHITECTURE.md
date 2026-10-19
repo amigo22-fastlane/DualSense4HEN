@@ -37,3 +37,17 @@ pozostają niezależne. Pozycje touchpada 1920×1080 skalujemy do 1920×942 DS4.
 Nieaktywnych kontaktów nie przekazujemy. Mute nie ma odpowiednika DS4.
 Surowe IMU jest parsowane do badań, ale nie jest przekazywane bez kalibracji.
 Brak jeszcze rumble, audio, adaptive triggers, orientacji i wybudzania konsoli.
+
+## Dwa konteksty diagnostyki USB
+
+PayLoader i aplikacja OpenOrbis korzystają z tego samego `usb_probe.c`, parsera
+i mapowania. Aplikacja ma osobny CRT, linkowaną libc i deklarowane wrappery
+libkernel zamiast założenia o kontekście bezpośrednich syscalli PayLoadera.
+Biblioteki systemowe otwiera przez własny sandbox, bez zmiany poświadczeń.
+Log może trafić do własnego download0, więc aplikacja pozostaje otwarta po
+sprzątnięciu USB do czasu pobrania pliku i ręcznego zamknięcia przez PS.
+
+`d4h_usb_input` jest opcjonalnym callbackiem po poprawnym parsowaniu odebranych
+danych. Aplikacja liczy nim raporty i zbocza X; nie podłącza jeszcze VDA.
+Niepoprawne raporty nie wywołują callbacku. Przyszłe włączenie VDA wymaga
+najpierw rzeczywistego odbioru i odrębnego pomiaru własności urządzenia.

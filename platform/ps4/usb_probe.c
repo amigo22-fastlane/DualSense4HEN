@@ -6,8 +6,29 @@
 #include "runtime.h"
 #include "ds4hen/hid.h"
 #include "ds4hen/ps4_pad.h"
+#include "ds4hen/usb_diagnostic.h"
 #include <libusb.h>
 #include <string.h>
+#ifdef D4H_USB_ACCESS_AUDIT
+#include <fcntl.h>
+static void audit_usb_access(int *errno_slot)
+{
+    /* This exact node and O_RDONLY are used by the audited 12.52 backend.
+     * Open and immediately close only; do not copy or issue its private ioctl. */
+    if (!d4h_rt.open || !d4h_rt.close) {
+        d4h_log("USB access audit unavailable: missing runtime file API\n"); return;
+    }
+    if (errno_slot) *errno_slot=0;
+    int fd=d4h_rt.open("/dev/usbctl",O_RDONLY);
+    int call_errno=errno_slot?*errno_slot:-1;
+    d4h_log("USB access audit path=/dev/usbctl flags=O_RDONLY result=%d errno=%d; no ioctl\n",fd,call_errno);
+    if (fd>=0) {
+        int ret=d4h_rt.close(fd);
+        d4h_log("USB access audit close=%d\n",ret);
+    }
+}
+#endif
+d4h_usb_input_fn d4h_usb_input;
 typedef struct {
     int *errno_slot;
     int32_t (*init)(void);
@@ -123,6 +144,7 @@ static void control_reads(usb_api *u,libusb_device_handle *handle,
     if (!parse) {
         d4h_ps4_pad_data pad;
         d4h_map_ps4(&state,d4h_rt.time_us(),1,&pad);
+        if (d4h_usb_input) d4h_usb_input(&state,pad.timestamp);
         d4h_log("usb-control-map bytes=%zu buttons=0x%x sticks=%u,%u,%u,%u triggers=%u,%u fingers=%u (no VDA)\n",
             sizeof(pad),pad.buttons,pad.lx,pad.ly,pad.rx,pad.ry,pad.l2,pad.r2,pad.touch_data.fingers);
     }
@@ -153,7 +175,8 @@ static int capture(usb_api *u,libusb_device *dev,const struct libusb_config_desc
 #endif
     control_reads(u,handle,config,iface);
     uint64_t start=d4h_rt.time_us(),last_sample=0;
-    unsigned good=0,bad=0,timeouts=0,samples=0; int io_error=0;
+    unsigned good=0,bad=0,timeouts=0,samples=0,x_changes=0;
+    int io_error=0,x_seen=0,x_previous=0;
     d4h_log("USB capture begin: <=30s / <=30000 reads; hold each input >=1s; DS4 dry-run only\n");
     /* Sample throughout the capture, not just the first second. Parse/map every
      * valid report, but never call VDA or change process privileges here. */
@@ -176,6 +199,14 @@ static int capture(usb_api *u,libusb_device *dev,const struct libusb_config_desc
         int parse=d4h_parse(D4H_USB,report,(size_t)received,&state);
         if (!parse) {
             ++good;
+            int x_down=(state.buttons&D4H_CROSS)!=0;
+            if (!x_seen || x_down!=x_previous) {
+                if (x_seen) ++x_changes;
+                d4h_log("USB input X=%d t_ms=%llu source=interrupt report=%u\n",x_down,
+                    (unsigned long long)((now-start)/1000u),good);
+                x_seen=1; x_previous=x_down;
+            }
+            if (d4h_usb_input) d4h_usb_input(&state,now);
             d4h_ps4_pad_data pad;
             d4h_map_ps4(&state,now,(uint8_t)good,&pad);
             if (samples<120 && (!samples || now-last_sample>=250000u)) {
@@ -191,8 +222,8 @@ static int capture(usb_api *u,libusb_device *dev,const struct libusb_config_desc
             }
         } else { ++bad; if (bad<=16) { d4h_hex("usb-invalid",report,(size_t)received); d4h_log("usb-parse error=%d\n",parse); } }
     }
-    d4h_log("USB summary good=%u bad=%u timeouts=%u samples=%u io_error=0x%x stopped=%d\n",
-        good,bad,timeouts,samples,io_error,d4h_stopping());
+    d4h_log("USB summary good=%u bad=%u timeouts=%u samples=%u io_error=0x%x stopped=%d x_changes=%u\n",
+        good,bad,timeouts,samples,io_error,d4h_stopping(),x_changes);
     int release=u->release(handle,iface);
     d4h_log("sceUsbdReleaseInterface=0x%x\n",release);
     u->close(handle);
@@ -207,18 +238,26 @@ int d4h_usb_probe(void)
     int result=-21;
     if (resolve_usb(h,&u)) { d4h_log("USB export unavailable; abort\n"); goto unload; }
     int saved_errno=u.errno_slot?*u.errno_slot:0;
+#ifdef D4H_USB_ACCESS_AUDIT
+    audit_usb_access(u.errno_slot);
+#endif
     /* Optional, independently declared in OpenOrbis Usbd.h and ps4sdk. */
     (void)D4H_RESOLVE(h,u,control,"sceUsbdControlTransfer");
 #ifdef D4H_USB_ALT_ZERO_PROBE
     (void)D4H_RESOLVE(h,u,select_alt,"sceUsbdSetInterfaceAltSetting");
 #endif
+    if (u.errno_slot) *u.errno_slot=0;
     int ret=u.init();
-    d4h_log("sceUsbdInit=0x%x\n",ret);
+    int init_errno=u.errno_slot?*u.errno_slot:-1;
+    d4h_log("sceUsbdInit=0x%x errno=%d\n",ret,init_errno);
     if (ret) goto restore_errno; /* Do not exit a context that we did not initialize. */
     libusb_device **list=0;
+    if (u.errno_slot) *u.errno_slot=0;
     int64_t count=u.list(&list);
+    int list_errno=u.errno_slot?*u.errno_slot:-1;
     d4h_log("sceUsbdGetDeviceList count=%lld list=%p first=%p\n",(long long)count,(void *)list,
             count>=0 && list ? (void *)list[0] : (void *)0);
+    d4h_log("USB enumeration errno=%d (after API, not per-ioctl trace)\n",list_errno);
     result=-22;
     if (count>=0 && list) {
         /* Only the standard DualSense VID/PID; Edge is a separate test target. */

@@ -101,3 +101,64 @@ libSceUsbd. RW pominięto. Sonda zakończyła się exit=0, moduł odładowano.
 Kopie pobrano i sprawdzono lokalnie, po czym oba utworzone pliki usunięto
 z konsoli. Nie odczytywano jądra. Zakres i własne wnioski:
 [USBD_ABI_EXPERIMENT.md](USBD_ABI_EXPERIMENT.md).
+
+## Samodzielna aplikacja OpenOrbis
+
+Zbudowano rzeczywisty PKG z oficjalnym OpenOrbis v0.5.4. Poniższe próby
+dotyczą wyłącznie własnej aplikacji diagnostycznej, nie globalnego DS4.
+
+| Paczka | Wynik właściciela / lokalnej kolekcji | Wniosek |
+|---|---|---|
+| Pierwsza 1.00, błędny TITLE_ID D4HN00001 | CE-32957-6 podczas instalacji | Błąd własnych metadanych: prefiks tytułu musi mieć cztery litery. Dodano walidację SFO/GP4/PKG i test regresji. |
+| Poprawiona 1.00, TITLE_ID DSHN00001 | Instalacja i start potwierdzone; kilka powiadomień, CE-34878-0 | Klog potwierdza wejście do runtime i SIGSYS przy powrocie main do CRT _exit. Nie uzyskano pomiaru USB z aplikacji. |
+| 1.01 | Instalacja/start potwierdzone, powiadomienia, czarny ekran, samoczynny koniec bez zgłoszonego błędu | Klog potwierdza wersję 1.01 i żądanie LoadExec ze ścieżką exit; system zapisał błąd uruchomienia tej ścieżki 0x80aa001a i zamknął tytuł. Brak wpisów [d4h] oraz globalnego pliku logu. Wyniku USB nie można wywnioskować. |
+| 1.02 | Właściciel wykonał test X; pobrano log 2349 B | Init=0, GetDeviceList count=0, exit=-22. Zwolniono własny moduł USB. Brak odczytu endpointu i brak raportów. |
+| Porównanie PayLoader po zamknięciu 1.02 | Ten sam kabel i podłączenie pozostawione przez właściciela | count=1, 054c:0ce6, deskryptor HID 289 B; interrupt 0x802400ff, errno=35, good=0, release=0, exit=-6. |
+| Dostęp backendu w PayLoaderze | open(/dev/usbctl, O_RDONLY)=25, errno=0, close=0 | Sam dostęp do węzła kontrolnego działa. Bez ioctl spoza biblioteki; transfer nadal nie działa. |
+| 1.03 | Właściciel wykonał test; pobrano log 2516 B | open(/dev/usbctl,O_RDONLY)=16/errno=0, close=0; Init=0/errno=0; count=0, errno=1 po enumeracji; exit=-22. |
+
+Hashe PKG odróżniające próby:
+
+- Odrzucona 1.00: `fc15d7fbde142e5d55a7f6f4498544e6d753207581527ba0dfeacde04bebbe92`.
+- Poprawiona 1.00: `303963a8ec9838752f942bd6810d92160a3efd59aaf046e27f5dc23b78cacc55`.
+- 1.01: `6fb7efe61351cd5bfe15a4110f13294546c1af4104adac89d04ac7a0bc645c00`.
+- 1.02: `3554433c801c5ce13e453986e03fad5a6d1e6f5a7ac7250f4c2ad349df24e474`.
+- 1.03: `73eef54edafbec1c6abb0cd618451ecde81ddc9371c077793a5737da78da8e24`.
+
+Crash 1.00 skorelowano z własnym ELF i jego importem _exit, nie z odczytem
+jądra. Nie ustalono w tej próbie dokładnej przyczyny wcześniejszego powrotu
+runtime ani kodu odmowy otwarcia logu. Brak globalnego /data nie dowodzi sam
+w sobie, że sceUsbd jest niedostępne. Wersja 1.02 używa zadeklarowanych
+sceKernelDlsym/Open/Write i osobnego obszaru własnej aplikacji, bez obchodzenia
+sandboxu. Nie zakładamy, że bezpośrednie syscalle payloadu są równoważnym
+kontekstem aplikacji. `USB_APP.md` opisuje instalację i wymagane dowody.
+
+Log 1.02 powstał w /data jako uid=1, mode=0600. FTP widziało plik w LIST, ale
+odmawiało RETR. Po odrzuconej automatycznie pierwszej próbie uzyskano osobną
+zgodę właściciela i zmieniono **wyłącznie ten log** przez SITE CHMOD na 0644.
+Następnie pobrano go z globalnego /data. SHA-256 logu:
+`6fa99126b4009331cd4c0950c9f209318a12ec65845a6d1caf050ce89c8c0f1c`.
+Nie zmieniano praw węzłów urządzeń ani konfiguracji konsoli.
+
+Porównanie potwierdza różnicę enumeracji między kontekstami w tej próbie,
+nie konkretną przyczynę po stronie polityki dostępu, sandboxu lub backendu.
+Nie potwierdza, że podniesienie uprawnień rozwiązałoby odbiór. W PayLoaderze
+po poprawnej enumeracji errno=2 mimo count=1: kolejny dowód, że samo errno
+po całym API nie jest statusem pojedynczego ioctl. Nie odebrano X.
+
+Nowa sonda dostępu ma SHA-256
+`d8382856e7faa86f5ff5629bed1199225797b738831af9af32997151056c8d3e`.
+Ścieżka /dev/usbctl i O_RDONLY pochodzą z zatwierdzonego audytu backendu
+tej biblioteki, nie z założenia o zgodności FreeBSD. Nie skopiowano jego ioctl.
+Wyniki: lokalnie app-usb-102.log/json, usb-app-comparison-01.log/json i
+usb-access-01.log/json. Żadnego zdarzenia X z symulacji nie zaliczono do
+pomiaru sprzętowego. Pełne logi są wyłącznie w ignorowanym build/hardware.
+
+Log 1.03 (`app-usb-103.log/json`) ma SHA-256
+`2b421e02c1c1d6d35ccfeab74b2efccc2613ec7ed3f4c73a31bc63c5157b1532`.
+Pobrano go bez kolejnej zmiany praw. Pokazuje, że pusta lista nie wynika
+z samej niemożności otwarcia /dev/usbctl. Errno=1 po enumeracji jest zgodne
+z etykietą EPERM z nagłówka SDK, lecz nie identyfikuje konkretnego ioctl ani
+warunku sterownika. Nie wykonano ioctl bezpośrednio, obejścia uprawnień,
+zmiany authid, praw urządzeń lub patcha jądra. W tej konfiguracji zwykła
+aplikacja nie dostarczyła wejścia USB, a PayLoader nadal napotyka błąd transferu.

@@ -17,6 +17,14 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'C compilation failed' }
     & ./build/host/test_core.exe
     if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+    foreach ($variant in @('registered','passive')) {
+        $btFlags=@()
+        if ($variant -eq 'passive') { $btFlags=@('-DD4H_BT_PASSIVE') }
+        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 @btFlags -Iinclude platform/ps4/bt_observer.c tests/test_bt.c -o "build/host/test_bt_$variant.exe"
+        if ($LASTEXITCODE -ne 0) { throw 'BT mock compilation failed' }
+        & "./build/host/test_bt_$variant.exe"
+        if ($LASTEXITCODE -ne 0) { throw 'BT mock tests failed' }
+    }
     if (Test-Path "$Sdk/target/include/libusb.h") {
         # Only the descriptor header; using the full PS4 sysroot for host tests would be wrong.
         New-Item -ItemType Directory -Force build/test-headers | Out-Null
@@ -29,6 +37,10 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'USB alt 0 mock tests compilation failed' }
         & ./build/host/test_usb_alt0.exe
         if ($LASTEXITCODE -ne 0) { throw 'USB alt 0 mock tests failed' }
+        & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -DD4H_USB_ACCESS_AUDIT -Iinclude -isystem build/test-headers -include tests/usb_compat.h src/hid.c src/ps4_pad.c platform/ps4/usb_probe.c tests/test_usb.c -o build/host/test_usb_access.exe
+        if ($LASTEXITCODE -ne 0) { throw 'USB access mock tests compilation failed' }
+        & ./build/host/test_usb_access.exe
+        if ($LASTEXITCODE -ne 0) { throw 'USB access mock tests failed' }
     } else { Write-Output 'USB mock tests skipped: SDK descriptor header unavailable' }
 } finally {
     $env:TEMP=$oldTemp; $env:TMP=$oldTmp; $env:ZIG_GLOBAL_CACHE_DIR=$oldCache

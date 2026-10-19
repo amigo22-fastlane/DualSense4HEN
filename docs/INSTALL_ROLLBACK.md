@@ -27,7 +27,11 @@ USB probe wymaga **DualSense z PS5**, kabla danych oraz bezpośredniego portu
 konsoli. Skanuje deskryptory i tylko interfejs HID; nie używa endpointu Xbox,
 nie odłącza sterownika systemowego, nie resetuje urządzenia i nie zmienia
 konfiguracji USB. Po znalezieniu pada odbiera przez maks. 30 s i zwalnia interfejs.
-Aktualny wynik sprzętowy to pusta lista — nie jest to gotowe wejście USB.
+Po zmianie kabla wykryto 054c:0ce6 i odczytano deskryptor HID; transfer
+wejściowy zwraca 0x802400ff. To nie jest gotowe wejście USB.
+
+Samodzielna aplikacja PKG i dokładna procedura naciskania X **na padzie PS5**:
+[USB_APP.md](USB_APP.md). Nie wysyłaj jej ELF przez PayLoadera.
 
 Observer Bluetooth ma dodatkowe warunki z `BLUETOOTH_ABI_1252.md`: zgodny hash
 biblioteki, własny kontekst, jeden eksperyment na restart konsoli. Rejestracja

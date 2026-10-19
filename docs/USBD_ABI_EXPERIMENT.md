@@ -81,8 +81,16 @@ pomocniczo, nie dowód konkretnej przyczyny w sterowniku tej konsoli.
 Porównać tę samą enumerację i interrupt IN w osobnej aplikacji homebrew
 z PayLoader/ScePartyDaemon, z niezmienionym kablem i endpointem oraz identycznym
 logiem status/errno. Pozwoli to oddzielić kontekst procesu od problemu
-backendu lub własności HID. W tym środowisku zbudowano payloady, nie potwierdzono
-jeszcze gotowej instalowalnej aplikacji OpenOrbis/PKG do takiego porównania.
+backendu lub własności HID. Zbudowano już rzeczywisty PKG OpenOrbis i właściciel
+potwierdził instalację poprawionej paczki. Wersja 1.00 zakończyła się SIGSYS
+w _exit, a 1.01 nie dostarczyła logu USB mimo startu i zakończenia bez zgłoszonego
+crasha. Wersja 1.02 poprawiła wrappery i kanał logu: Init=0, count=0, exit=-22.
+Zaraz potem PayLoader na tym samym podłączeniu ponownie wykrył kontroler
+i deskryptor HID, lecz nie wejście. Wersja 1.03 potwierdziła open O_RDONLY
+/dev/usbctl i close z errno=0 także w aplikacji; lista nadal była pusta,
+errno=1 po API. PayLoader otwiera ten węzeł i widzi urządzenie. To wyklucza
+sam brak dostępu open jako wystarczające wyjaśnienie pustej listy. Szczegóły:
+USB_APP.md i HARDWARE_RESULTS.md. Nadal nie ustalono konkretnego miejsca odmowy.
 Nie deklarujemy, że samo podniesienie uprawnień lub patch rozwiąże problem.
 
 Jeśli potrzebne będzie śledzenie konkretnego ioctl, trzeba najpierw przygotować

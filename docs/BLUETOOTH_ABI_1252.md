@@ -94,3 +94,20 @@ Skrypt weryfikuje pełny SHA-256 i rozmiar przed użyciem tabeli +0x1ab0 i
 liczbowe mapowania, bez bajtów Sony. Binaria nadal pozostają poza GitHub.
 Następny rozstrzygający krok to niezależny call-site rejestracji na 12.52 lub
 potwierdzenie warunku sterownika, zanim zaproponujemy zmiany jego zachowania.
+
+## Pasywne okno bez RegisterDevice
+
+Dalszy lokalny audyt wcześniej zatwierdzonej biblioteki wykazał, że
+RegisterCallback tworzy watcher przed rejestracją filtra urządzenia. Watcher
+obsługuje zdarzenia cyklu połączenia i raportów, ale nie wykazano, jakie
+zdarzenia sterownik rzeczywiście przekazuje bez filtra. Nie dowodzi to bondingu
+DualSense ani możliwości uzyskania raportów bez RegisterDevice.
+
+Dodano oddzielny wariant `D4H_BT_PASSIVE`, budowany przez `-IncludeBtPassive`.
+Nie rozwiązuje i nie wywołuje RegisterDevice/UnregisterDevice; obserwuje callback
+przez maksymalnie 30 sekund, po czym wyrejestrowuje go i wykonuje join.
+Zachowuje zgodność profilu, własny kontekst i pin modułu do restartu.
+Hostowe testy sprawdzają brak rejestracji, limit, stop i zakończenie watchera.
+**Nie uruchomiono go jeszcze na PS4.** Najpierw należy zakończyć test USB;
+przyszły test BT wymaga świeżego kontekstu, kabla odłączonego od DualSense
+i zanotowania zachowania standardowej listy urządzeń Bluetooth przy Create+PS.

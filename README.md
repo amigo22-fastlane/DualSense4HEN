@@ -20,6 +20,9 @@ Sprzęt zgłoszony przez właściciela: PS4 Slim, firmware **12.52**, GoldHEN
 - Testy błędnych długości, CRC, mapowania, neutralizacji i usuwania urządzenia.
 - Syntetyczne raporty z niezależnie wygenerowanym CRC, nie próbki sprzętowe.
 - Zbudowane sondy ELF i observer Bluetooth z profilem biblioteki z PS4 12.52.
+- Samodzielny PKG OpenOrbis do porównania USB z PayLoaderem:
+  [test aplikacji 1.03](docs/USB_APP.md). Odbiór rzeczywistych raportów nadal
+  wymaga potwierdzenia; sam start aplikacji nie jest sukcesem HID.
 - Test sprzętowy: Init=0, RegisterCallback=0, RegisterDevice=0x81540002,
   UnregisterCallback=0, join=0. Znaczenie błędu rejestracji jest nieustalone.
 - Poprzedni test USB zwrócił pustą listę; właściciel następnie wykrył problem
