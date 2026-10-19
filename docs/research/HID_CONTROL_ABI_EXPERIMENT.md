@@ -1,4 +1,4 @@
-# Lokalny audyt libSceHidControl — przygotowany, nieuruchomiony
+# Lokalny audyt libSceHidControl — wykonany po odrębnej zgodzie
 
 Powód: połączony w UI DualSense nie daje zdarzeń nowemu klientowi BluetoothHid,
 a kontrola DS4 przez scePad w PayLoaderze też zwraca zera. Powtarzanie tych
@@ -16,9 +16,8 @@ Nie obiecujemy, że ten moduł udostępni CID lub liczniki pakietów L2CAP.
 
 Przygotowany plik: `build/research/dualsense4hen-hidcontrol-abi.elf`, kopia
 w `dist/research/`. Budowanie: `powershell -File tools/build-research.ps1 -HidControlAudit`.
-Nie uruchomiono na konsoli. Poprzednie zgody obejmowały BluetoothHid i Usbd;
-ten zakres dotyczy **innej biblioteki** i wymaga osobnego zatwierdzenia
-lokalnego odczytu jej kodu Sony przez właściciela.
+Przed uruchomieniem uzyskano osobną zgodę właściciela na lokalny odczyt
+RX/R tej biblioteki. Poprzednie zgody obejmowały BluetoothHid i Usbd.
 
 SHA256 przygotowanego ELF:
 `9c83f379fc33b6b287c2421f90ed0bfa01d59956f9b7520143e14e4098d99d5b`.
@@ -54,3 +53,38 @@ Walidacja ELF nie jest potwierdzeniem uruchomienia na PS4.
 
 Źródło nazw eksportów:
 [OpenOrbis HidControl.h](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/blob/master/include/orbis/HidControl.h).
+
+## Wynik zatwierdzonego uruchomienia
+
+2026-10-20 00:14:35 czasu Polski (22:14:35 UTC poprzedniego dnia): właściciel
+udzielił osobnej zgody. Sonda wystartowała na 0x12520001; trzy wskazane
+eksporty obecne, nie wywołane. Zapisano segment 0 RX=16384 B i segment 2
+R=16384 B, pominięto segment 1 RW. Własny moduł unload=0, exit=0.
+Pobrano oba pliki, sprawdzono rozmiary/kopie/SHA256, po czym usunięto dokładnie
+te dwa pliki z PS4, bez chmod. Kopie pozostają w ignorowanym build/hardware.
+
+- RX: SHA256 `90a1f20a98572dd0838eba12c8ee2b6560c4de749570e9f475f9c2a056312c17`.
+- R: SHA256 `3a4d72847df5f8d367f8306e9205897a78b19088b2878c96a31d2980b5bd0fa8`;
+  dane po relokacji, nie uniwersalny fingerprint modułu.
+- Log: SHA256 `3f236114d52275659d03e2b4d6acf765cd4422ad50436359e9e29bc6e2fcf1e0`.
+
+Ustalenia własnej analizy, bez dystrybucji kodu Sony:
+
+1. HidControl posługuje się /dev/hid; GetDeviceInfo z BluetoothHid otwiera
+   /dev/bt. Watcher callbacków BluetoothHid używa z kolei /dev/bluetooth_hid.
+   To różne kontrakty; nie utożsamiamy ich z surowym HCI/L2CAP.
+2. GetDeviceInfo przekazuje 32-bitowy pierwszy argument i wskaźnik w 16 B
+   opakowaniu do żądania 0x80104801. GetDeviceName ma analogiczny układ
+   i żądanie 0x8010484b. GetBatteryState dodaje pole o wartości 1 i używa
+   0x8010480c. Funkcje sprawdzają inicjalizację i niepusty wskaźnik.
+3. Kod wrappera nie ujawnia rozmiaru obiektu wskazywanego przez ten wskaźnik.
+   **16 B nie jest rozmiarem wyniku GetDeviceInfo.** Pierwszy argument nie
+   został jeszcze semantycznie zidentyfikowany. Nie wywołano żadnego z Get*.
+4. Nie znaleziono w tym kontrakcie udokumentowanej listy CID, HCI lub odbioru
+   pakietów. Sam audyt nie rozstrzygnął kanałów istniejącej sesji DualSense.
+   Do dalszego zapytania potrzebny jest rzeczywisty konsument/struktury.
+
+Reprodukcja liczb bez disassembly:
+`python tools/research_abi.py hidcontrol build/hardware/hidcontrol-seg0.bin`.
+Program weryfikuje pełny hash i długość przed użyciem własnego profilu.
+Żadnego z opisanych prywatnych ioctl nie wykonano bezpośrednio.

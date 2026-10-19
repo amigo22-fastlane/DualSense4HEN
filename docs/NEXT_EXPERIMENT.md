@@ -5,6 +5,10 @@ DualSense w UI także bez USB. Pierwszy observer bez RegisterDevice wykonał
 35 s bez zdarzeń. Nie usuwać urządzenia, nie parować ponownie, nie restartować
 konsoli dla świeżego kontekstu. Obecny priorytet i wyniki:
 [EXISTING_BT_SESSION.md](research/EXISTING_BT_SESSION.md).
+Zweryfikowano nowy raport: [DEEP_RESEARCH_REVIEW.md](research/DEEP_RESEARCH_REVIEW.md).
+Następny pomiar USB ma pytać o właściciela/nazwę interfejsu, bez detach,
+FS_INIT/OPEN lub kolejnego transferu. Nie podłączać USB podczas bieżącej
+obserwacji BT. Audyt HidControl nie wystarczył do bezpiecznego GetDeviceInfo.
 Poniższa starsza propozycja Create+PS jest nieaktualna dla trwającej sesji.
 
 Obecna blokada: `sceBluetoothHidRegisterDevice(0x054c,0x0ce6)` odrzuca próbę,

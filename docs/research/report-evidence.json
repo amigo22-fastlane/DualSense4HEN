@@ -1,0 +1,72 @@
+{
+  "report_sha256": "3dcaf8ca1f170abcdbb59e5a2ef69d89c6b6cbcd09b91637a4f57ac8a2c96551",
+  "usbd": {
+    "kind": "usbd",
+    "sha256": "dc8aa9f70baa6f6e32d1ea938cdd51761f6601aa4c7e63ff11f6509b848b5dff",
+    "requests": {
+      "DRIVER_ACTIVE": "0x8004557c",
+      "DRIVER_DETACH": "0x8004557d",
+      "FS_INIT": "0x801055c3",
+      "FS_OPEN": "0xc01055c5",
+      "GET_IFACE_DRIVER": "0xc0205579",
+      "DO_REQUEST": "0xc018556f",
+      "SET_POWER_MODE": "0x80045591"
+    },
+    "kernel_semantics": "NOT_PROVEN_BY_WRAPPER_ALONE",
+    "hid_output_size": "not applicable"
+  },
+  "hidcontrol": {
+    "kind": "hidcontrol",
+    "sha256": "90a1f20a98572dd0838eba12c8ee2b6560c4de749570e9f475f9c2a056312c17",
+    "requests": {
+      "GET_DEVICE_INFO": "0x80104801",
+      "GET_DEVICE_NAME": "0x8010484b",
+      "GET_BATTERY_STATE": "0x8010480c"
+    },
+    "kernel_semantics": "NOT_PROVEN_BY_WRAPPER_ALONE",
+    "hid_output_size": "UNKNOWN"
+  },
+  "hidcontrol_hardware_run": {
+    "elf": "dualsense4hen-hidcontrol-abi.elf",
+    "sha256": "9c83f379fc33b6b287c2421f90ed0bfa01d59956f9b7520143e14e4098d99d5b",
+    "sent_at_utc": "2026-10-19T22:14:35.560599+00:00",
+    "fetched_at_utc": "2026-10-19T22:14:38.689440+00:00",
+    "baseline_bytes": 61560,
+    "cumulative_bytes": 62839
+  },
+  "hidcontrol_segments_copied_and_deleted": true,
+  "native_klog": {
+    "scope": "HISTORICAL_LOG_NOT_CURRENT_INVENTORY",
+    "devices": {
+      "0x30300": {
+        "events": [
+          "REMOVED"
+        ],
+        "models": [],
+        "subtypes": [
+          2
+        ]
+      },
+      "0x50300": {
+        "events": [
+          "ADDED",
+          "STATUS_UPDATED",
+          "OWNER_CHANGED",
+          "STATUS_UPDATED"
+        ],
+        "models": [
+          "DUALSHOCK4"
+        ],
+        "subtypes": [
+          2
+        ]
+      }
+    },
+    "dualsense_identity": "UNKNOWN",
+    "l2cap_control": "UNKNOWN",
+    "l2cap_interrupt": "UNKNOWN",
+    "virtual_device_ownership": "NOT_PROVEN",
+    "hid_report_reception": "NOT_PROVEN_BY_MBUS_EVENTS"
+  },
+  "usb_owner_hardware_run": "NOT_RUN; existing BT session has no USB cable"
+}

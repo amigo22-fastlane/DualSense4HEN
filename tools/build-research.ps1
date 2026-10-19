@@ -4,7 +4,8 @@ param(
     [string]$OpenOrbis="$PSScriptRoot/../.tools/OpenOrbis/PS4Toolchain",
     [switch]$ConnectedBt,
     [switch]$PadOnly,
-    [switch]$HidControlAudit
+    [switch]$HidControlAudit,
+    [switch]$UsbOwner
 )
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
@@ -21,6 +22,11 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Independent input module cross compilation failed' }
     }
     Get-FileHash build/research/dualsense4hen-native-bt-gate.elf -Algorithm SHA256
+    if ($UsbOwner) {
+        & $Zig cc -target x86_64-freestanding -std=c11 -Wall -Wextra -Werror -O2 -g0 -ffreestanding -fno-builtin -fno-stack-protector -fPIE -pie -nostdlib -isystem "$Sdk/target/include" -Iinclude -Iplatform/ps4 platform/ps4/runtime.c platform/ps4/usb_owner_probe.c src/usb_owner.c src/hid.c '-Wl,-e,_start,-T,platform/ps4/probe.ld,-z,max-page-size=0x4000' -o build/research/dualsense4hen-usb-owner.elf
+        if ($LASTEXITCODE -ne 0) { throw 'Read-only USB ownership diagnostic compilation failed' }
+        Get-FileHash build/research/dualsense4hen-usb-owner.elf -Algorithm SHA256
+    }
     if ($HidControlAudit) {
         & $Zig cc -target x86_64-freestanding -std=c11 -Wall -Wextra -Werror -O2 -g0 -ffreestanding -fno-builtin -fno-stack-protector -fPIE -pie -nostdlib -DD4H_HID_CONTROL_ABI_DUMP -isystem "$Sdk/target/include" -Iinclude -Iplatform/ps4 platform/ps4/runtime.c platform/ps4/probe.c '-Wl,-e,_start,-T,platform/ps4/probe.ld,-z,max-page-size=0x4000' -o build/research/dualsense4hen-hidcontrol-abi.elf
         if ($LASTEXITCODE -ne 0) { throw 'HID Control audit compilation failed' }

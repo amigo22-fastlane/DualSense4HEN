@@ -38,6 +38,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'HID Control audit mock compilation failed' }
     & ./build/host/test_hidcontrol_audit.exe
     if ($LASTEXITCODE -ne 0) { throw 'HID Control audit mocks failed' }
+    & $Zig cc -std=c11 -Wall -Wextra -Wpedantic -Werror -g -O1 -Iinclude src/usb_owner.c tests/test_usb_owner.c -o build/host/test_usb_owner.exe
+    if ($LASTEXITCODE -ne 0) { throw 'USB owner mock compilation failed' }
+    & ./build/host/test_usb_owner.exe
+    if ($LASTEXITCODE -ne 0) { throw 'USB owner mocks failed' }
     foreach ($variant in @('registered','passive','connected')) {
         $btFlags=@()
         if ($variant -eq 'passive') { $btFlags=@('-DD4H_BT_PASSIVE') }

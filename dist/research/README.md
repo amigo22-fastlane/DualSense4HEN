@@ -19,9 +19,15 @@ Rev1 wykonana: zero zdarzeń; rev2 z poprawką UserService nie testowana sprzęt
 Wykonana na PS4: odczyty działają, lecz kontrola DS4 L2 nie dała wejścia.
 Nie potwierdza ani nie wyklucza rejestracji DualSense.
 
-`dualsense4hen-hidcontrol-abi.elf`: przygotowany audyt RX/R innej biblioteki
-Sony. **Nie uruchomiono, wymaga odrębnej zgody na lokalne skopiowanie kodu.**
+`dualsense4hen-hidcontrol-abi.elf`: audyt RX/R innej biblioteki Sony.
+**Uruchomiono po odrębnej zgodzie; pliki segmentów pobrano i usunięto z PS4.**
 Nie jest zwykłym observerem wejścia. Nie wywołuje funkcji HID Control.
 
 [Istniejąca sesja, wyniki i instrukcje](../../docs/research/EXISTING_BT_SESSION.md).
 [Dokładny zakres audytu](../../docs/research/HID_CONTROL_ABI_EXPERIMENT.md).
+
+`dualsense4hen-usb-owner.elf`: nowy pomiar tożsamości i przypisania sterownika
+interfejsu 3 w znanym węźle ugen, O_RDONLY. Bez detach, FS, transferów,
+zmian zasilania i uprawnień. **Zbudowany i testowany na atrapach; nie uruchomiony
+na PS4.** Wymaga oddzielnego okna z USB, po zachowaniu wyników istniejącej sesji BT.
+[Weryfikacja raportu, ABI i instrukcja](../../docs/research/DEEP_RESEARCH_REVIEW.md).

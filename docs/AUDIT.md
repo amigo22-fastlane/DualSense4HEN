@@ -1,5 +1,10 @@
 # Audyt źródeł — 2026-10-19
 
+Aktualizacja 2026-10-20: pełna weryfikacja nowego raportu, z późniejszym
+potwierdzeniem sesji BT i kodem zapytań o właściciela USB:
+[DEEP_RESEARCH_REVIEW.md](research/DEEP_RESEARCH_REVIEW.md).
+Historyczna propozycja Create+PS poniżej nie dotyczy trwającego połączenia.
+
 Stan sprzętu przekazany przez właściciela: PS4 Slim, **12.52**, GoldHEN
 **v2.4b18.12**. Po pierwszym commicie wykonano testy na konsoli właściciela;
 wyniki są w `HARDWARE_RESULTS.md`. Poniższy audyt repozytoriów jest oddzielony

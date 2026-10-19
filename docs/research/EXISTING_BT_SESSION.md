@@ -150,7 +150,8 @@ GetDeviceName też nie ma potwierdzonego pełnego kontraktu. Następny audyt
 musi znaleźć systemowego konsumenta i rzeczywiste struktury, zamiast zgadywać
 ioctl, kody HCI lub dodawać własne parowanie. Odczyt nowych bibliotek Sony
 wymaga osobnego określenia i zatwierdzenia zakresu, jeżeli okaże się potrzebny.
-Przygotowano taki zakres i nieuruchomiony ELF dla HidControl:
+Po osobnej zgodzie wykonano audyt RX/R HidControl. Wykazał inny kontrakt
+/dev/hid, nadal bez pełnego rozmiaru wyniku. Nie wykonano zgadywanego GetInfo:
 [HID_CONTROL_ABI_EXPERIMENT.md](HID_CONTROL_ABI_EXPERIMENT.md).
 
 Źródła interfejsu:

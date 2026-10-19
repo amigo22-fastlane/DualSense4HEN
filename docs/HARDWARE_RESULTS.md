@@ -198,3 +198,17 @@ callbacków z brakiem raportów. Moduł Bluetooth zachowano po zakończeniu
 własnego watchera. Nie restartować PS4 dla ponowienia tego eksperymentu.
 Szczegóły, hashe, instrukcja i następny audyt:
 [EXISTING_BT_SESSION.md](research/EXISTING_BT_SESSION.md).
+
+Po osobnej zgodzie wykonano lokalny audyt HidControl: RX/R po 16384 B,
+RW pominięto, moduł unload=0, exit=0. Kopie pobrano/sprawdzono, oba pliki
+segmentów usunięto z konsoli. Nie wywołano funkcji HID Control ani nowych
+prywatnych ioctl. Wrapper /dev/hid nie określa rozmiaru wskazywanego wyniku
+GetDeviceInfo, więc nie wykonano zapytania i kanały L2CAP pozostają UNKNOWN.
+[Szczegóły](research/HID_CONTROL_ABI_EXPERIMENT.md).
+
+Weryfikacja raportu Deep Research wykazała niezgodne numery komend ACTIVE/
+DETACH (raport 144/145, kod Usbd 12.52 124/125). Nie wykonywano komend raportu.
+Przygotowano nową sondę własności USB bez detach/transferów; **nie uruchomiono
+jej na sprzęcie**, gdy trwa istniejąca sesja BT bez kabla. Nie potwierdzono
+uhid jako przyczyny wcześniejszych błędów. Tabela twierdzeń i eksperymenty:
+[DEEP_RESEARCH_REVIEW.md](research/DEEP_RESEARCH_REVIEW.md).
