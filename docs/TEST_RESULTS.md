@@ -145,3 +145,21 @@ gotowość i wykonano osiem prób opisanych w `HARDWARE_RESULTS.md`.
   Workflow wykonuje CMake/CTest z ASan/UBSan i testy Python. Obejmuje rdzeń,
   transport research oraz mocki BT; opcjonalne mocki USB uruchomiono lokalnie,
   ponieważ CI nie otrzymuje nagłówka SDK. To test hosta, nie test radia PS4.
+
+## 2026-10-30 — wykonanie USB-owner i kolektor GoldHEN 550
+
+- Python unittest: **61 PASS**. Dodano rozróżnienie nieobecnego markera
+  od ogólnego FTP 550 na podstawie kompletnej, ograniczonej listy nazw.
+  Testy obejmują istniejący marker, limit nazw i przerwany transfer listy;
+  błąd nie odblokowuje wysłania ELF. Bez chmod lub kasowania plików.
+- ELF pozostał identyczny z audytowanym de0d8fd, SHA256
+  `2b1c221e8577db8deb311c39addae7e1994aac8f2af4ed2ea8e09dacf4c5b212`.
+  Nie przebudowywano kodu konsoli dla poprawki hosta. Przygotowanie offline
+  ponownie potwierdziło strukturę i dokładny hash przed wysyłką.
+- Po zgodzie i USB GOTOWE jeden payload wykonał pomiar na PS4 12.52.
+  Odczyt tożsamości 054c:0ce6 na fd RO działa. ACTIVE/NAME zawiodły
+  (errno 6/22); close i unload własnego modułu zwróciły 0. Wynik nie
+  potwierdza sterownika uhid, raportów HID ani przyczyny 0x802400ff.
+- Porównano analizator z nowym delta logiem, odrzucając stary baseline;
+  wynik METADATA_QUERY_REFUSED, binding UNKNOWN, capture NOT_ATTEMPTED.
+  [Wyniki sprzętowe i ograniczenia](research/USB_OWNER_RESULTS.md).

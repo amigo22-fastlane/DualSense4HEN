@@ -1,4 +1,12 @@
-# USB-OWNER — zweryfikowana procedura, jeszcze bez wykonania na PS4
+# USB-OWNER — wykonany pomiar 12.52
+
+**Aktualizacja 2026-10-30:** właściciel zakończył obserwację BT, osobno
+zatwierdził USB-owner i potwierdził „USB GOTOWE”. Wysłano ELF jeden raz.
+Tożsamość 054c:0ce6 potwierdzona na O_RDONLY fd; ACTIVE=-1/errno=6,
+NAME=-1/errno=22. Przypisanie sterownika pozostaje UNKNOWN, bez raportów HID.
+[Wynik i następna hipoteza](USB_OWNER_RESULTS.md).
+Poniższa procedura zachowuje wcześniejszy audyt i warunki wykonania;
+nie jest zgodą na ponowny test.
 
 **Aktualna gotowość:** READY FOR SEPARATE APPROVAL. Etap analizy GetDeviceInfo
 zamknięto jako BLOCKED na dostępnych materiałach; następny pomiar to USB-owner.

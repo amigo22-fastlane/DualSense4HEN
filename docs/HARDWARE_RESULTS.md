@@ -263,3 +263,24 @@ USB-owner ponownie skompilowano lokalnie z identycznym hashem; przygotowano
 jednorazowy sender i automatyczne pobranie/analizę logu, bez ich uruchomienia
 w sieci PS4. VDA jest wyłącznie planem. Stan odbioru X przez USB i BT nadal
 niepotwierdzony. [Raport](research/NEXT_MEASURABLE_EXPERIMENT.md).
+
+## USB-owner — 2026-10-30, osobna zgoda i potwierdzone USB
+
+Właściciel zakończył obserwację BT i zezwolił na jeden test. Pierwszy
+preflight zatrzymał się przed wysyłką na ogólnym FTP 550. Metadane nazw
+potwierdziły brak własnego stop-markera; niczego nie usunięto ani nie chmodowano.
+Po poprawce kolektora wysłano niezmieniony ELF **dokładnie jeden raz**.
+
+Firmware 0x12520001, profil RX zgodny, Init=0, count=1. DualSense
+054c:0ce6, bus=0/address=2, interface=3. O_RDONLY open=27/errno=0,
+deskryptor na tym samym fd result=0/errno=0 i zgodne VID/PID.
+ACTIVE raw=-1/errno=6, NAME raw=-1/errno=22, brak uzyskanej nazwy.
+close=0, complete=-4, exit=-4, unload własnego modułu ret=0/result=0.
+To zakończony pomiar błędu query, nie potwierdzenie awarii aplikacji.
+
+Przypisanie sterownika UNKNOWN. Nie wykonano transferów ani odbioru przycisków,
+detach, FS_INIT/OPEN, VDA, zmian parowania/uprawnień lub patchy. Brak nowego
+dowodu kanałów Bluetooth. Potwierdzenie działania menu po pomiarze oczekuje
+odpowiedzi właściciela; sprzątanie modułu samo tego nie dowodzi.
+[Pełna interpretacja](research/USB_OWNER_RESULTS.md),
+[metryki i hashe](research/usb-owner-results.json).

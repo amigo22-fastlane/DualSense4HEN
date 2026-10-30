@@ -1,5 +1,11 @@
 # Decyzja: zamknięcie etapu A i przygotowanie jednego pomiaru USB
 
+**Aktualizacja po wykonaniu B, 2026-10-30:** jednorazowy test USB-owner
+został osobno zatwierdzony i zakończył się odczytem tożsamości urządzenia,
+ale błędami ACTIVE/NAME (errno 6/22). Brak dowodu zajęcia przez uhid.
+[Nowe wyniki i rozstrzygający następny krok](USB_OWNER_RESULTS.md).
+Pozostała część dokumentu zachowuje stan przygotowania z de0d8fd.
+
 2026-10-30. Punkt odniesienia: 1dd0454. W tej iteracji nie wykonano żadnych
 operacji na PS4: połączeń FTP/klog, payloadów, parowania, kolejek lub VDA.
 Ponownie sprawdzono lokalne kopie i zbudowano narzędzia odbioru logu.
@@ -110,10 +116,16 @@ ma run ani harmonogramu. Nowy skrypt sprawdza dokładny SHA, zachowuje baseline,
 nie usuwa stop-markera, wysyła raz i przez ograniczone okno odbiera log.
 Nie wykonuje chmod, nie przestawia na O_RDWR i nie ponawia ELF po błędzie.
 Niejednoznaczne FTP 550 nie jest traktowane jako dowód braku pliku.
+GoldHEN 2.2 zwraca także ogólne „File unavailable” dla nieistniejącego
+stop-markera. Tylko dla tego dokładnego komunikatu kolektor może sprawdzić
+kompletne `NLST /data` (maks. 4096 nazw, po 1024 znaki). Zachowuje wyłącznie
+informację o obecności własnej nazwy. Obecny marker lub błąd listowania
+przerywa próbę; nie usuwa markera i nie zmienia praw.
 
 Pliki lokalne: manifest.json (hash i czasy), baseline.log, cumulative.log,
 new.log i analysis.json. Odczyt FTP jest ograniczony do własnego logu
-diagnostycznego (4 MiB) i własnego stop-markera; brak dostępu do innych plików.
+diagnostycznego (4 MiB) i własnego stop-markera. W powyższym fallbacku
+odczytywane są dodatkowo same nazwy katalogu; treść innych plików nie jest czytana.
 Analizator odrzuca stary sukces, ucięty/wymieniony log, więcej niż jedną
 transakcję i brak sprzątania modułu **po** probe exit.
 

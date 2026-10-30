@@ -115,6 +115,25 @@ class UsbOwnerEvidenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             runner.read_remote(Denied(), '/system/sys/SceSysCore.elf')
 
+    def test_generic_goldhen_550_requires_successful_name_listing(self):
+        class GoldhenFTP:
+            def __init__(self, names):
+                self.names = names
+            def retrbinary(self, command, callback):
+                self_test.assertEqual(command, 'RETR ' + runner.REMOTE_STOP)
+                raise ftplib.error_perm('550 Requested action not taken. File unavailable.')
+            def retrlines(self, command, callback):
+                self_test.assertEqual(command, 'NLST /data')
+                for name in self.names:
+                    callback(name)
+        self_test = self
+        self.assertIsNone(runner.read_remote(GoldhenFTP(['/data/dualsense4hen-probe.log']),
+                                              runner.REMOTE_STOP, missing_ok=True))
+        with self.assertRaises(ftplib.error_perm):
+            runner.read_remote(GoldhenFTP(['/data/dualsense4hen.stop']), runner.REMOTE_STOP, missing_ok=True)
+        with self.assertRaises(ValueError):
+            runner.read_remote(GoldhenFTP(['x'] * 4097), runner.REMOTE_STOP, missing_ok=True)
+
     def test_collect_is_log_only_and_preserves_freshness(self):
         before = b'old transaction\n'
         for baseline, after, expected in ((before, before + transaction(), 'DRIVER_NAME_REPORTED'),
@@ -143,6 +162,16 @@ class UsbOwnerEvidenceTests(unittest.TestCase):
                     result = runner.collect(directory)
                 self.assertEqual(result['status'], expected)
                 self.assertEqual(json.loads((directory / 'analysis.json').read_text())['status'], expected)
+
+    def test_failed_parent_listing_never_bypasses_stop_marker_check(self):
+        class FailedListing:
+            def retrbinary(self, command, callback):
+                raise ftplib.error_perm('550 Requested action not taken. File unavailable.')
+            def retrlines(self, command, callback):
+                callback('/data/dualsense4hen-probe.log')
+                raise ftplib.error_temp('426 Connection closed; transfer aborted')
+        with self.assertRaises(ftplib.error_temp):
+            runner.read_remote(FailedListing(), runner.REMOTE_STOP, missing_ok=True)
 
 
 if __name__ == '__main__':

@@ -67,8 +67,30 @@ def read_remote(ftp, path, missing_ok=False):
         if missing_ok and message.startswith('550') and any(
                 word in message for word in ('not found', 'no such file', 'does not exist')):
             return None
+        if (missing_ok and message.strip() == '550 requested action not taken. file unavailable.'
+                and not listed_in_data(ftp, path)):
+            return None  # Complete parent-name listing, not the ambiguous 550, proves absence.
         raise
     return bytes(data)
+
+
+def listed_in_data(ftp, path):
+    """Only names, discard unrelated entries; bounded fallback for GoldHEN 550."""
+    if path not in (REMOTE_LOG, REMOTE_STOP):
+        raise ValueError('Metadata target outside diagnostic scope')
+    wanted = path.rsplit('/', 1)[1]
+    found, count = False, 0
+
+    def receive(line):
+        nonlocal found, count
+        count += 1
+        if count > 4096 or len(line) > 1024:
+            raise ValueError('Parent metadata listing exceeds fixed limit')
+        if line.rstrip('/').rsplit('/', 1)[-1] == wanted:
+            found = True
+
+    ftp.retrlines('NLST /data', receive)
+    return found
 
 
 def connect_ftp(host):

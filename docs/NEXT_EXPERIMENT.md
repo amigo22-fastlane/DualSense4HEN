@@ -1,5 +1,13 @@
 # Następny eksperyment po 0x81540002
 
+**Najnowszy wynik, 2026-10-30:** po osobnej zgodzie wykonano USB-owner.
+O_RDONLY i deskryptor 054c:0ce6 działają; ACTIVE errno=6, NAME errno=22.
+Nie potwierdzono uhid ani przyczyny 0x802400ff. Nie powtarzać transferu ani
+sondy automatycznie. Rekomendacja: osobno zatwierdzony odczyt bieżącej
+konfiguracji i dostępności interfejsu po audycie natywnego kontraktu.
+[Wynik, hipoteza i kryteria](research/USB_OWNER_RESULTS.md).
+Poniższe wpisy opisują wcześniejsze decyzje.
+
 **Bieżąca decyzja przygotowawcza, 2026-10-30:** etap Bluetooth/GetDeviceInfo
 ma wynik **BLOCKED na już zatwierdzonych materiałach**. Nie powtarzamy tych
 samych sond ani nie pozyskujemy nowego kodu/memory. Rekomendowany jeden test
