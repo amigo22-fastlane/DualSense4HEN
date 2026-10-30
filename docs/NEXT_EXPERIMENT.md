@@ -1,5 +1,13 @@
 # Następny eksperyment po 0x81540002
 
+**Wykonano 2026-10-30 po osobnej zgodzie:** FTP z nowego .12 udostępnił
+940552 B SceSysCore.elf jako czytelny ELF64. Potwierdzono importy, statyczne
+łańcuchy wywołań i devId jako 32-bitowy argument; pełny rozmiar wyniku nadal
+nieustalony. Klog pobrany, bez jednoznacznej tożsamości DualSense lub raportu X.
+[NATIVE_CONSUMER_RESULTS.md](research/NATIVE_CONSUMER_RESULTS.md).
+Nie uruchamiać GetDeviceInfo ze zgadywanym rozmiarem/ID; USB nadal odłożone.
+Poniższy zapis oczekiwania na zgodę opisuje wcześniejszy stan prac.
+
 **Wznowienie 2026-10-30:** po wyłączeniu/włączeniu konsoli DualSense nie
 połączył się automatycznie; właściciel usunął wpis i ponownie sparował pad.
 Obecna sesja BT jest nowa. Nie powtarzamy parowania ani nie przenosimy na nią

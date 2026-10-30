@@ -1,8 +1,9 @@
 # Natywny konsument GetDeviceInfo — zakres następnego kroku
 
-Status 2026-10-30: **przygotowany, oczekuje osobnej zgody na odczyt pliku**.
-Gałąź: `codex/architecture-research-1252`. Żadnego nowego pliku ani pamięci
-systemowej konsoli nie odczytano w ramach przygotowania tego eksperymentu.
+Status 2026-10-30: **wykonano zatwierdzony odczyt jednego pliku i analizę lokalną**.
+Gałąź: `codex/architecture-research-1252`. Nie odczytano pamięci systemowego
+procesu ani jądra. Pełne ABI GetDeviceInfo nadal jest częściowo nieustalone;
+nie uruchomiono zapytania. Wynik: [NATIVE_CONSUMER_RESULTS.md](NATIVE_CONSUMER_RESULTS.md).
 USB pozostaje odłożone; `dualsense4hen-usb-owner.elf` nie jest uruchamiany.
 
 Wznowienie 2026-10-30: właściciel zgłosił wyłączenie/włączenie konsoli
@@ -60,9 +61,9 @@ Pełne ABI może umożliwić bezpieczne pytanie o stan już istniejącego urząd
 Nie zakładamy, że GetDeviceInfo ujawnia CID albo raporty — pokaże to dopiero
 analiza pól i ich pochodzenia. Zapytanie o stan nie zastąpi dowodu odbioru HID.
 
-## Dokładny zakres wymagający zgody
+## Zatwierdzony zakres
 
-1. Wyłącznie standardowy FTP konsoli 192.168.88.7:2121: logowanie anonymous,
+1. Wyłącznie standardowy FTP konsoli (aktualnie 192.168.88.12:2121): logowanie anonymous,
    tryb binarny, `SIZE` i `RETR` dokładnie **`/system/sys/SceSysCore.elf`**.
    Bez listowania katalogów, szukania innych plików i uruchamiania payloadu.
 2. Maksymalnie **16 MiB** całego pliku na dysku. Ten zakres obejmuje także
@@ -90,11 +91,12 @@ Nie trzeba nic instalować na PS4; istniejące połączenie ma pozostać aktywne
 
 Narzędzie: [tools/native_consumer.py](../../tools/native_consumer.py).
 Przed zgodą wolno używać wyłącznie lokalnych podkomend `inventory` i `inspect`.
-Poniższy odczyt sieciowy zostanie wykonany **dopiero po osobnej zgodzie**:
+Poniższy odczyt sieciowy wykonano **po osobnej zgodzie**, pod nowym adresem
+podanym przez właściciela (192.168.88.12 zamiast wcześniejszego .7):
 
 ```powershell
 New-Item -ItemType Directory -Force build/hardware/native-consumer | Out-Null
-python tools/native_consumer.py fetch 192.168.88.7 build/hardware/native-consumer/SceSysCore.file
+python tools/native_consumer.py fetch 192.168.88.12 build/hardware/native-consumer/SceSysCore.file
 ```
 
 Warunki dopuszczenia przyszłej sondy GetDeviceInfo: potwierdzone importy i

@@ -231,3 +231,18 @@ Pasywna próba połączenia z dotychczasowym klog:3232 zakończyła się timeout
 Przygotowano kod audytu jednego natywnego konsumenta oraz lokalne testy;
 nowy odczyt pliku systemowego wymaga odrębnej zgody, nadal oczekuje.
 [Zakres i kryteria](research/NATIVE_CONSUMER_EXPERIMENT.md).
+
+Po osobnej zgodzie właściciela połączono się z nowym adresem .12.
+Pobrano dokładnie `/system/sys/SceSysCore.elf`: 940552 B, SHA256
+`968fd8d7ac0f65d3949fed95e8d113e57ee77108bf349aad545ea639cf893b69`.
+FTP zwrócił czytelny ELF64 bez dodatkowych komend odszyfrowywania.
+Analiza offline potwierdziła importy i statyczne wywołania GetDeviceInfo
+HidControl oraz BluetoothHid, z 32-bitowym devId. Nie ustaliła pełnego
+rozmiaru wyników; zapytań nie wywołano i nie odczytano pamięci procesu.
+
+Klog pod nowym adresem zadziałał: 65580 B, SHA256
+`e8413d5d4decdf79d343b67163ef33f023b957c8af39ac043648a8d88a75ad23`.
+Zdarzenia MBus subtype 10 nie wskazują jednoznacznie DualSense, kanałów
+L2CAP ani odbioru HID. Nadal brak rzeczywistego raportu X przez Bluetooth.
+Binarium, pełny klog i deasemblacja pozostają poza Git.
+[Dowody i ograniczenia](research/NATIVE_CONSUMER_RESULTS.md).

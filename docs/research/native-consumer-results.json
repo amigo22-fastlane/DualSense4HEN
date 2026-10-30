@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-30",
+  "scope": "OWNER_APPROVED_SINGLE_ON_DISK_FILE_AND_PASSIVE_KLOG",
+  "image": {
+    "size": 940552,
+    "sha256": "968fd8d7ac0f65d3949fed95e8d113e57ee77108bf349aad545ea639cf893b69",
+    "format": "ELF64_X86_64",
+    "get_device_info_abi": "UNKNOWN",
+    "elf_type": "0xfe10",
+    "load_segments": [
+      {
+        "file_offset": 16384,
+        "file_size": 858648,
+        "flags": 5
+      },
+      {
+        "file_offset": 901120,
+        "file_size": 1000,
+        "flags": 6
+      }
+    ]
+  },
+  "matched_imports": [
+    {
+      "symbol": "sceBluetoothHidGetDeviceInfo",
+      "slot_rva": 874520
+    },
+    {
+      "symbol": "sceHidControlGetBatteryState",
+      "slot_rva": 874576
+    },
+    {
+      "symbol": "sceHidControlGetDeviceInfo",
+      "slot_rva": 874584
+    },
+    {
+      "symbol": "sceHidControlGetDeviceName",
+      "slot_rva": 874592
+    }
+  ],
+  "native_profile": {
+    "sha256": "968fd8d7ac0f65d3949fed95e8d113e57ee77108bf349aad545ea639cf893b69",
+    "verified_static_paths": [
+      {
+        "symbol": "sceHidControlGetDeviceInfo",
+        "branch_sites_rva": [
+          "0x70824",
+          "0x5380f",
+          "0x5b61f"
+        ],
+        "targets_rva": [
+          "0x537f0",
+          "0x5b5f0",
+          "0x91ec0"
+        ],
+        "slot_rva": "0xd5858"
+      },
+      {
+        "symbol": "sceBluetoothHidGetDeviceInfo",
+        "branch_sites_rva": [
+          "0x7181c",
+          "0x5383f",
+          "0x5b68f"
+        ],
+        "targets_rva": [
+          "0x53820",
+          "0x5b660",
+          "0x91e40"
+        ],
+        "slot_rva": "0xd5818"
+      }
+    ],
+    "evidence_kind": "STATIC_CALL_SITES_NOT_A_RUNTIME_TRACE",
+    "get_device_info_abi": "PARTIAL_NO_QUERY",
+    "selector": "native device identifier narrowed to low 32 bits",
+    "hid_output_size": "UNKNOWN",
+    "bt_output_size": "UNKNOWN",
+    "hid_minimum_read_extent_bytes": 37,
+    "bt_minimum_read_extent_bytes": 12,
+    "device_name_zeroed_buffer_bytes": 514,
+    "l2cap_control": "UNKNOWN",
+    "l2cap_interrupt": "UNKNOWN",
+    "hid_report_reception": "UNKNOWN"
+  },
+  "klog": {
+    "scope": "HISTORICAL_LOG_NOT_CURRENT_INVENTORY",
+    "devices": {
+      "0x9000000000200": {
+        "events": [
+          "REMOVED"
+        ],
+        "models": [],
+        "subtypes": [
+          10
+        ]
+      },
+      "0x9000000000300": {
+        "events": [
+          "ADDED",
+          "OWNER_CHANGED"
+        ],
+        "models": [],
+        "subtypes": [
+          10
+        ]
+      }
+    },
+    "dualsense_identity": "UNKNOWN",
+    "l2cap_control": "UNKNOWN",
+    "l2cap_interrupt": "UNKNOWN",
+    "virtual_device_ownership": "NOT_PROVEN",
+    "hid_report_reception": "NOT_PROVEN_BY_MBUS_EVENTS"
+  },
+  "klog_bytes": 65580,
+  "klog_sha256": "e8413d5d4decdf79d343b67163ef33f023b957c8af39ac043648a8d88a75ad23",
+  "console_query_executed": false,
+  "usb_probe_executed": false,
+  "new_session_after_owner_restart_and_repair": true
+}
