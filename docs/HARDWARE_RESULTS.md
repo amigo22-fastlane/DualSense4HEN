@@ -280,7 +280,8 @@ To zakończony pomiar błędu query, nie potwierdzenie awarii aplikacji.
 
 Przypisanie sterownika UNKNOWN. Nie wykonano transferów ani odbioru przycisków,
 detach, FS_INIT/OPEN, VDA, zmian parowania/uprawnień lub patchy. Brak nowego
-dowodu kanałów Bluetooth. Potwierdzenie działania menu po pomiarze oczekuje
-odpowiedzi właściciela; sprzątanie modułu samo tego nie dowodzi.
+dowodu kanałów Bluetooth. Właściciel po pomiarze potwierdził:
+„Tak, menu PS4 działa normalnie”. To potwierdzenie zachowania menu,
+nie odbioru raportów DualSense ani braku wszystkich możliwych skutków.
 [Pełna interpretacja](research/USB_OWNER_RESULTS.md),
 [metryki i hashe](research/usb-owner-results.json).

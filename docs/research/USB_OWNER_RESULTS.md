@@ -20,6 +20,9 @@ Identyfikacja urządzenia i dostęp RO są potwierdzone. Nie jest to wynik
 nieudane query, nie ustaloną odmowę uprawnień. Pusta nazwa po błędzie nie
 jest udanym odczytem pustej nazwy. Brak rzeczywistych raportów przycisków.
 
+Po pomiarze właściciel potwierdził: „Tak, menu PS4 działa normalnie”.
+Nie wykonano dodatkowej operacji na konsoli w celu uzyskania tego potwierdzenia.
+
 ## Co zmienia para błędów
 
 Nagłówek errno SDK nazywa 6 ENXIO, 22 EINVAL. Te nazwy nie wskazują jeszcze

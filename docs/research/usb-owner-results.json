@@ -38,7 +38,7 @@
   "baseline_sha256": "4142aebd3d3b8dcf573e510799e0f6d5b72aab1514ab6de085eef4ecee63320f",
   "owned_module_unload_return": 0,
   "owned_module_unload_result": 0,
-  "menu_state": "AWAITING_OWNER_CONFIRMATION",
+  "menu_state": "NORMAL_CONFIRMED_BY_OWNER_AFTER_PROBE",
   "pairing_changed_by_probe": false,
   "kernel_modified": false
 }
