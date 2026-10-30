@@ -1,0 +1,20 @@
+{
+  "source": "https://github.com/idc/ps4libdoc",
+  "commit": "a71315e7f36e312ae71e9e3a92982e9ffbfc725f",
+  "source_branch": "9.00",
+  "target_firmware": "12.52: candidate not yet verified",
+  "metadata_files_scanned": 546,
+  "candidates": [
+    {
+      "metadata": "system/sys/SceSysCore.elf.json",
+      "metadata_sha256": "0ed539b08c7771284ea7e9cb22b1fcda50cd1302c839b4f314ca43c8321f79f8",
+      "imports": [
+        {"library": "libSceBluetoothHid", "symbol": "sceBluetoothHidGetDeviceInfo", "symbol_id_hex": "6164F51AB716B90B"},
+        {"library": "libSceHidControl", "symbol": "sceHidControlGetBatteryState", "symbol_id_hex": "6A4982D675DBACB1"},
+        {"library": "libSceHidControl", "symbol": "sceHidControlGetDeviceInfo", "symbol_id_hex": "BB61AB463F39462C"},
+        {"library": "libSceHidControl", "symbol": "sceHidControlGetDeviceName", "symbol_id_hex": "11FBF3ACACEE8D01"}
+      ]
+    }
+  ],
+  "abi": "UNKNOWN: import names do not give output size or selector semantics"
+}

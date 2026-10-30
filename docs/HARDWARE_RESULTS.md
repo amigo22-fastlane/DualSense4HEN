@@ -212,3 +212,22 @@ Przygotowano nową sondę własności USB bez detach/transferów; **nie uruchomi
 jej na sprzęcie**, gdy trwa istniejąca sesja BT bez kabla. Nie potwierdzono
 uhid jako przyczyny wcześniejszych błędów. Tabela twierdzeń i eksperymenty:
 [DEEP_RESEARCH_REVIEW.md](research/DEEP_RESEARCH_REVIEW.md).
+
+## Wznowienie Bluetooth — 2026-10-30
+
+Relacja właściciela: po wyłączeniu i ponownym włączeniu PS4 DualSense nie
+połączył się sam. Aby połączyć ponownie, właściciel użył „Zapomnij urządzenie”
+i ponownie sparował kontroler; obecnie zgłasza aktywne połączenie Bluetooth.
+Nie ma informacji o próbie reconnect bez usunięcia wpisu ani o jej wyniku.
+Nie ustalono stanu kluczy, uwierzytelnienia, kanałów HID lub raportów.
+Nie przypisujemy braku reconnect do konkretnej przyczyny.
+
+Jest to **nowa sesja po restarcie**, więc wcześniejsze zera callbacków/Pad
+pozostają wynikami historycznymi, nie pomiarem bieżącego połączenia.
+Nie usuwaliśmy wpisu i nie zlecaliśmy kolejnej zmiany parowania.
+
+Pasywna próba połączenia z dotychczasowym klog:3232 zakończyła się timeout
+(8 s), bez logu. Nie wysłano payloadu i nie uruchomiono sondy USB.
+Przygotowano kod audytu jednego natywnego konsumenta oraz lokalne testy;
+nowy odczyt pliku systemowego wymaga odrębnej zgody, nadal oczekuje.
+[Zakres i kryteria](research/NATIVE_CONSUMER_EXPERIMENT.md).

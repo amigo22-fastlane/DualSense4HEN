@@ -1,5 +1,20 @@
 # Następny eksperyment po 0x81540002
 
+**Wznowienie 2026-10-30:** po wyłączeniu/włączeniu konsoli DualSense nie
+połączył się automatycznie; właściciel usunął wpis i ponownie sparował pad.
+Obecna sesja BT jest nowa. Nie powtarzamy parowania ani nie przenosimy na nią
+wyników starego observera. Próba pobrania klog pod poprzednim adresem/portem
+zakończyła się timeout; nowy log nie został uzyskany. Zakres oczekującego na
+zgodę odczytu jednego pliku pozostaje opisany poniżej.
+
+**Bieżąca decyzja właściciela (2026-10-20): Bluetooth przed USB.**
+Przygotowano [NATIVE_CONSUMER_EXPERIMENT.md](research/NATIVE_CONSUMER_EXPERIMENT.md):
+zwykły odczyt jednego pliku SceSysCore.elf przez FTP, do 16 MiB, bez pamięci
+procesu i bez wywołania GetDeviceInfo. Oczekuje osobnej zgody na nowy zakres.
+Publiczne importy wskazują konsumenta na 9.00; trzeba zweryfikować 12.52.
+USB owner ELF pozostaje gotowy, **nie uruchamiać automatycznie**.
+Poniższe starsze propozycje USB i parowania nie są bieżącym zleceniem wykonania.
+
 **Aktualizacja 2026-10-20:** właściciel potwierdził istniejące połączenie
 DualSense w UI także bez USB. Pierwszy observer bez RegisterDevice wykonał
 35 s bez zdarzeń. Nie usuwać urządzenia, nie parować ponownie, nie restartować

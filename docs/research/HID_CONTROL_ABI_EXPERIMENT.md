@@ -88,3 +88,7 @@ Reprodukcja liczb bez disassembly:
 `python tools/research_abi.py hidcontrol build/hardware/hidcontrol-seg0.bin`.
 Program weryfikuje pełny hash i długość przed użyciem własnego profilu.
 Żadnego z opisanych prywatnych ioctl nie wykonano bezpośrednio.
+
+Następny krok po decyzji właściciela: analiza natywnego konsumenta,
+opisana w [NATIVE_CONSUMER_EXPERIMENT.md](NATIVE_CONSUMER_EXPERIMENT.md).
+Przygotowano ograniczony odczyt jednego pliku przez FTP; nie został wykonany.
