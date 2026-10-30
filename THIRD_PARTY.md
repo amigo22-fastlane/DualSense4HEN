@@ -55,3 +55,10 @@ Linux hid-playstation (GPL-2.0-or-later) i BTstack pozostały materiałem analiz
 BTstack ma dodatkowy warunek niekomercyjnego użycia w audytowanej licencji;
 nie włączamy go do dystrybucji. Licencja samego Bluepad32 nie pokrywa stosu
 zależnego. Rewizje i zakres: `docs/research/ARCHITECTURE_REVIEW.md`.
+
+Audyt kompatybilnych modeli PS4 z 2026-10-30 obejmuje GIMX (GPLv3),
+PassingLink (MIT) i pliki PS4 GP2040-CE (MIT). Klony są wyłącznie w ignorowanym
+research/; nie przeniesiono ich kodu, kluczy, firmware lub deskryptorów do
+produktu. Nie linkowano ich zależności. Numery wersji i przejrzane pliki:
+`docs/research/ds4-compatibility-sources.json`. SDL i hid-playstation służyły
+porównaniu opublikowanych formatów, a nie przejęciu ich backendów systemowych.

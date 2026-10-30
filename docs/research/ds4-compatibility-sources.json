@@ -1,0 +1,81 @@
+{
+  "audit_date": "2026-10-30",
+  "scope": "PUBLIC_SOURCE_REVIEW_ONLY_NO_CONSOLE_EXPERIMENT",
+  "repositories": [
+    {
+      "name": "GIMX",
+      "url": "https://github.com/matlo/GIMX.git",
+      "commit": "e44a1cc9823939165d3d92418e9d679c66496ee1",
+      "license_observed": "GPL-3.0",
+      "license_file": "LICENSE",
+      "audited_files": [
+        {
+          "path": "core/connectors/btds4.c",
+          "sha256": "29ce3d365e7612b322a19a22e5873c7513d6a8183c8dd235c98e90f7448293e7"
+        },
+        {
+          "path": "shared/gimxcontroller/include/ds4.h",
+          "sha256": "ef0549df6a0bfca9fa400af37de3a78c03124c041b0b7fb2a30f3526c4f55efa"
+        },
+        {
+          "path": "utils/ds4tool.c",
+          "sha256": "aed555251722cc99b0df8517f2e5dc317a71cc1f214830aad5c04d73a8e1a0f8"
+        }
+      ],
+      "production_code_imported": false
+    },
+    {
+      "name": "passinglink",
+      "url": "https://github.com/passinglink/passinglink.git",
+      "commit": "b5a6ec0df749ea4dffdf1535044a47e2930f4a5f",
+      "license_observed": "MIT",
+      "license_file": "LICENSE",
+      "audited_files": [
+        {
+          "path": "src/output/usb/ps4/auth.cpp",
+          "sha256": "96ab7f4824c12a6c2ec10c90182e55f0939a919c333ebf9092a1f6607a0500b8"
+        },
+        {
+          "path": "src/output/usb/ps4/hid.cpp",
+          "sha256": "0da4eb8a1eb777703d7622f579a2b757f7937ac3282e4d0bc4255555a64bf6ad"
+        },
+        {
+          "path": "src/output/usb/ps4/auth.h",
+          "sha256": "ca77b2f4d6fb1160f4ba19c8ac89bbbc4d266a16d31fdc39862a50b52a318bdb"
+        }
+      ],
+      "production_code_imported": false
+    },
+    {
+      "name": "GP2040-CE",
+      "url": "https://github.com/OpenStickCommunity/GP2040-CE.git",
+      "commit": "0e33f08fbaf8bd3528950ed0d6f2ea73d259b153",
+      "license_observed": "MIT: PS4 source files",
+      "license_file": "LICENSE",
+      "audited_files": [
+        {
+          "path": "src/drivers/ps4/PS4Driver.cpp",
+          "sha256": "09a3ff579adb05a649b892caa64b62220224f8979895e5c1281b0f38fbbd92e8"
+        },
+        {
+          "path": "src/drivers/ps4/PS4Auth.cpp",
+          "sha256": "786bea6cd7f736d0fd8e6418394146c9ced1b91c7b873f1e352a21302ac16ced"
+        },
+        {
+          "path": "src/drivers/ps4/PS4AuthUSBListener.cpp",
+          "sha256": "bceff2c600ad5dac972d6eabe271881c3186511d3ec87080f730f7a2dc249bfb"
+        },
+        {
+          "path": "headers/drivers/ps4/PS4Driver.h",
+          "sha256": "7f3fc216cd44e844024f9120b7568390784632e537f8e8ac953dc417fde1af95"
+        },
+        {
+          "path": "headers/drivers/ps4/PS4Descriptors.h",
+          "sha256": "369213893bd7dd7977f69170735b4f638b27b4a93d3b2fac76b389c552c4a9da"
+        }
+      ],
+      "production_code_imported": false
+    }
+  ],
+  "dependencies": "Not linked or redistributed; license review required before future reuse"
+}

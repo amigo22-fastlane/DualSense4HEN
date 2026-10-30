@@ -31,3 +31,7 @@ interfejsu 3 w znanym węźle ugen, O_RDONLY. Bez detach, FS, transferów,
 zmian zasilania i uprawnień. **Zbudowany i testowany na atrapach; nie uruchomiony
 na PS4.** Wymaga oddzielnego okna z USB, po zachowaniu wyników istniejącej sesji BT.
 [Weryfikacja raportu, ABI i instrukcja](../../docs/research/DEEP_RESEARCH_REVIEW.md).
+
+Ponowny audyt USB bez uruchomienia na PS4:
+[USB_OWNER_EXPERIMENT.md](../../docs/research/USB_OWNER_EXPERIMENT.md).
+Nie uruchamiać automatycznie podczas badań istniejącej sesji Bluetooth.

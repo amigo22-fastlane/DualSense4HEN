@@ -1,5 +1,19 @@
 # Następny eksperyment po 0x81540002
 
+**Dalszy audyt 2026-10-30, bez nowych testów konsoli:** ustalono źródło devId
+w natywnych rekordach /dev/mbus (48 B) i znakowanie górnych bitów bez zmiany
+dolnych 32. Zidentyfikowano też lookup ID w lokalnym rejestrze. Writer-side
+GetDeviceInfo nadal leży poza zatwierdzonym userspace; minimalny potrzebny
+fragment to handler ioctl /dev/hid 0x80104801 i jego zapis wyniku, nie dowolny
+kolejny SPRX. [Audyt i warunki dalszej próby](research/DEV_ID_AND_QUERY_BOUNDARY.md).
+Nie uruchamiać czytnika /dev/mbus: nie ustalono własności kolejki.
+
+Hipoteza kompatybilnych zamienników DS4:
+[porównanie transportów, protokołu i auth](research/DS4_COMPATIBILITY_RESEARCH.md).
+Sukcesy klonów nie dowodzą zgodności DualSense z profilem DS4; aktualne
+Połączono nie rozstrzyga kanałów/raportów. Sonda USB nadal **NOT RUN**;
+[ponownie sprawdzone ABI i przyszła procedura](research/USB_OWNER_EXPERIMENT.md).
+
 **Wykonano 2026-10-30 po osobnej zgodzie:** FTP z nowego .12 udostępnił
 940552 B SceSysCore.elf jako czytelny ELF64. Potwierdzono importy, statyczne
 łańcuchy wywołań i devId jako 32-bitowy argument; pełny rozmiar wyniku nadal

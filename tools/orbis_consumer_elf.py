@@ -117,11 +117,13 @@ class OrbisImage:
         return matched
 
 
-def public_name_map(document):
+def public_name_map(document, native_io=False):
     result = {}
     for module in document.get('modules', []):
         for library in module.get('libraries', []):
             allowed = TARGETS.get(library.get('name'), set())
+            if native_io and library.get('name') == 'libkernel':
+                allowed = {'open', 'read', 'ioctl', 'kevent'}
             if library.get('is_export') is not False:
                 continue
             for symbol in library.get('symbols', []):
@@ -131,6 +133,56 @@ def public_name_map(document):
                         raise ValueError('Ambiguous public NID mapping')
                     result[nid] = symbol['name']
     return result
+
+
+def native_event_provenance(image, imports):
+    """Reproduce evidence from the approved image, never parse a live queue."""
+    if image.identity['sha256'] != NATIVE_SHA:
+        raise ValueError('Unknown image; refusing native event interpretation')
+    slots = {item['symbol']: item['slot_rva'] for item in imports}
+    for site, plt, name in ((0x6f437, 0x907b0, 'open'),
+                            (0x6f664, 0x90d60, 'read')):
+        if image.relative_branch(site) != plt or image.jump_slot(plt) != slots.get(name):
+            raise ValueError('Native source call does not resolve to the expected import')
+    for site, target in ((0x6f69e, 0x701b0), (0x6f6a6, 0x702b0)):
+        if image.relative_branch(site) != target:
+            raise ValueError('Unexpected native event dispatch edge')
+    # Table base obtained from the normalizer's RIP-relative table reference.
+    table = 0xb1ab0
+    tags = {}
+    for family in range(1, 34):
+        target = table + struct.unpack('<i', image.virtual_slice(table + (family - 1) * 4, 4))[0]
+        if target == 0x702a1:
+            tags[str(family)] = 'unchanged'
+        else:
+            if image.virtual_slice(target, 2) != b'\x48\xb9':
+                raise ValueError('Unknown tag assignment in native normalizer')
+            value = struct.unpack('<Q', image.virtual_slice(target + 2, 8))[0]
+            if value & ((1 << 48) - 1):
+                raise ValueError('Tag unexpectedly changes low identifier bits')
+            tags[str(family)] = f'0x{value:016x}'
+    return {
+        'source_node': '/dev/mbus',
+        'native_open_flags': 2,
+        'native_read_record_bytes': 48,
+        'native_open_call_rva': '0x6f437', 'native_read_call_rva': '0x6f664',
+        'record_layout': {'family_u32': 0, 'event_code_u32': 4, 'identifier_u64': 8},
+        'record_identifier_scope': 'verified device-event path; event code 4 has a special layout',
+        'normalizer_rva': '0x701b0', 'dispatcher_rva': '0x702b0',
+        'normalizer_operation': 'OR selected family tag into identifier; not a counter allocation',
+        'family_tags': tags,
+        'low_32_bits_preserved': True,
+        'get_info_origin': 'verified event path: low 32 bits of identifier from native event record',
+        'other_get_info_path': {
+            'lookup_rva': '0x883e0', 'get_info_call_rva': '0x614f5',
+            'registry_entries': 32, 'entry_stride': 216,
+            'lookup': 'two byte selectors, returning a stored 64-bit identifier',
+            'registry_identifier_writer': 'NOT_TRACED_TO_PROVIDER',
+        },
+        'runtime_event_for_dualsense': 'NOT_IDENTIFIED',
+        'read_only_new_client_safety': 'UNKNOWN: per-open versus shared queue not established',
+        'record_is_hid_input_report': 'NOT_ESTABLISHED',
+    }
 
 
 def native_profile(image, imports):
@@ -177,10 +229,11 @@ def main():
         parser.error('Image exceeds approved 16 MiB scope')
     image = OrbisImage(args.image.read_bytes())
     document = json.loads(args.public_metadata.read_text(encoding='utf-8-sig'))
-    imports = image.imports(public_name_map(document))
+    imports = image.imports(public_name_map(document, native_io=args.native_profile))
     result = {'image': image.identity, 'matched_imports': imports}
     if args.native_profile:
         result['native_profile'] = native_profile(image, imports)
+        result['native_event_provenance'] = native_event_provenance(image, imports)
     print(json.dumps(result, indent=2))
 
 

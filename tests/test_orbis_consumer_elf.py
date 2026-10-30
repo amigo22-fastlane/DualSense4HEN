@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from orbis_consumer_elf import OrbisImage, native_profile, public_name_map
+from orbis_consumer_elf import OrbisImage, native_profile, native_event_provenance, public_name_map
 
 
 def fixture():
@@ -101,6 +101,8 @@ class OrbisConsumerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             native_profile(OrbisImage(fixture()), [])
         with self.assertRaises(ValueError):
+            native_event_provenance(OrbisImage(fixture()), [])
+        with self.assertRaises(ValueError):
             OrbisImage(b'container' + fixture())
 
     def test_public_map_ignores_exports_and_unrelated_names(self):
@@ -111,6 +113,14 @@ class OrbisConsumerTests(unittest.TestCase):
             {'name': 'libSceBluetoothHid', 'is_export': True, 'symbols': [
                 {'name': 'sceBluetoothHidGetDeviceInfo', 'encoded_id': 'export'}]}]}]}
         self.assertEqual(public_name_map(doc), {'nid': 'sceHidControlGetDeviceInfo'})
+
+    def test_native_io_mapping_requires_explicit_scope(self):
+        doc = {'modules': [{'libraries': [
+            {'name': 'libkernel', 'is_export': False, 'symbols': [
+                {'name': 'read', 'encoded_id': 'read_nid'},
+                {'name': 'write', 'encoded_id': 'write_nid'}]}]}]}
+        self.assertEqual(public_name_map(doc), {})
+        self.assertEqual(public_name_map(doc, native_io=True), {'read_nid': 'read'})
 
 
 if __name__ == '__main__':

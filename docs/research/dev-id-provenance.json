@@ -1,0 +1,163 @@
+{
+  "image": {
+    "size": 940552,
+    "sha256": "968fd8d7ac0f65d3949fed95e8d113e57ee77108bf349aad545ea639cf893b69",
+    "format": "ELF64_X86_64",
+    "get_device_info_abi": "UNKNOWN",
+    "elf_type": "0xfe10",
+    "load_segments": [
+      {
+        "file_offset": 16384,
+        "file_size": 858648,
+        "flags": 5
+      },
+      {
+        "file_offset": 901120,
+        "file_size": 1000,
+        "flags": 6
+      }
+    ]
+  },
+  "matched_imports": [
+    {
+      "symbol": "open",
+      "slot_rva": 871632
+    },
+    {
+      "symbol": "ioctl",
+      "slot_rva": 871720
+    },
+    {
+      "symbol": "kevent",
+      "slot_rva": 872192
+    },
+    {
+      "symbol": "read",
+      "slot_rva": 872360
+    },
+    {
+      "symbol": "sceBluetoothHidGetDeviceInfo",
+      "slot_rva": 874520
+    },
+    {
+      "symbol": "sceHidControlGetBatteryState",
+      "slot_rva": 874576
+    },
+    {
+      "symbol": "sceHidControlGetDeviceInfo",
+      "slot_rva": 874584
+    },
+    {
+      "symbol": "sceHidControlGetDeviceName",
+      "slot_rva": 874592
+    }
+  ],
+  "native_profile": {
+    "sha256": "968fd8d7ac0f65d3949fed95e8d113e57ee77108bf349aad545ea639cf893b69",
+    "verified_static_paths": [
+      {
+        "symbol": "sceHidControlGetDeviceInfo",
+        "branch_sites_rva": [
+          "0x70824",
+          "0x5380f",
+          "0x5b61f"
+        ],
+        "targets_rva": [
+          "0x537f0",
+          "0x5b5f0",
+          "0x91ec0"
+        ],
+        "slot_rva": "0xd5858"
+      },
+      {
+        "symbol": "sceBluetoothHidGetDeviceInfo",
+        "branch_sites_rva": [
+          "0x7181c",
+          "0x5383f",
+          "0x5b68f"
+        ],
+        "targets_rva": [
+          "0x53820",
+          "0x5b660",
+          "0x91e40"
+        ],
+        "slot_rva": "0xd5818"
+      }
+    ],
+    "evidence_kind": "STATIC_CALL_SITES_NOT_A_RUNTIME_TRACE",
+    "get_device_info_abi": "PARTIAL_NO_QUERY",
+    "selector": "native device identifier narrowed to low 32 bits",
+    "hid_output_size": "UNKNOWN",
+    "bt_output_size": "UNKNOWN",
+    "hid_minimum_read_extent_bytes": 37,
+    "bt_minimum_read_extent_bytes": 12,
+    "device_name_zeroed_buffer_bytes": 514,
+    "l2cap_control": "UNKNOWN",
+    "l2cap_interrupt": "UNKNOWN",
+    "hid_report_reception": "UNKNOWN"
+  },
+  "native_event_provenance": {
+    "source_node": "/dev/mbus",
+    "native_open_flags": 2,
+    "native_read_record_bytes": 48,
+    "native_open_call_rva": "0x6f437",
+    "native_read_call_rva": "0x6f664",
+    "record_layout": {
+      "family_u32": 0,
+      "event_code_u32": 4,
+      "identifier_u64": 8
+    },
+    "record_identifier_scope": "verified device-event path; event code 4 has a special layout",
+    "normalizer_rva": "0x701b0",
+    "dispatcher_rva": "0x702b0",
+    "normalizer_operation": "OR selected family tag into identifier; not a counter allocation",
+    "family_tags": {
+      "1": "0x0001000000000000",
+      "2": "0x0002000000000000",
+      "3": "0x0003000000000000",
+      "4": "0x0004000000000000",
+      "5": "0x0005000000000000",
+      "6": "0x0006000000000000",
+      "7": "0x0007000000000000",
+      "8": "0x0008000000000000",
+      "9": "0x0009000000000000",
+      "10": "0x000a000000000000",
+      "11": "0x000b000000000000",
+      "12": "0x000c000000000000",
+      "13": "0x000d000000000000",
+      "14": "unchanged",
+      "15": "unchanged",
+      "16": "0x0010000000000000",
+      "17": "unchanged",
+      "18": "unchanged",
+      "19": "unchanged",
+      "20": "unchanged",
+      "21": "unchanged",
+      "22": "unchanged",
+      "23": "unchanged",
+      "24": "unchanged",
+      "25": "unchanged",
+      "26": "unchanged",
+      "27": "unchanged",
+      "28": "unchanged",
+      "29": "unchanged",
+      "30": "unchanged",
+      "31": "unchanged",
+      "32": "0x0020000000000000",
+      "33": "0x0021000000000000"
+    },
+    "low_32_bits_preserved": true,
+    "get_info_origin": "verified event path: low 32 bits of identifier from native event record",
+    "other_get_info_path": {
+      "lookup_rva": "0x883e0",
+      "get_info_call_rva": "0x614f5",
+      "registry_entries": 32,
+      "entry_stride": 216,
+      "lookup": "two byte selectors, returning a stored 64-bit identifier",
+      "registry_identifier_writer": "NOT_TRACED_TO_PROVIDER"
+    },
+    "runtime_event_for_dualsense": "NOT_IDENTIFIED",
+    "read_only_new_client_safety": "UNKNOWN: per-open versus shared queue not established",
+    "record_is_hid_input_report": "NOT_ESTABLISHED"
+  }
+}

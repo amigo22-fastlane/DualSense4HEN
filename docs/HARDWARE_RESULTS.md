@@ -246,3 +246,13 @@ Zdarzenia MBus subtype 10 nie wskazują jednoznacznie DualSense, kanałów
 L2CAP ani odbioru HID. Nadal brak rzeczywistego raportu X przez Bluetooth.
 Binarium, pełny klog i deasemblacja pozostają poza Git.
 [Dowody i ograniczenia](research/NATIVE_CONSUMER_RESULTS.md).
+
+Dalsza iteracja 2026-10-30: **bez nowych połączeń z konsolą i bez nowych
+eksperymentów sprzętowych**. W istniejącym pliku SceSysCore prześledzono
+źródło devId: rekord /dev/mbus → znakowanie ID → dispatcher → GetDeviceInfo,
+plus osobny lookup w rejestrze. Nie uzyskano writer-side zakresu zapisu;
+nie wywołano GetDeviceInfo ani nie otwarto /dev/mbus. Nie potwierdzono miejsca
+odrzucania raportów lub odbioru X. Zbadano publiczne implementacje zgodnych
+kontrolerów; ich wyniki nie są naszym testem PS4 12.52.
+[Audyt devId](research/DEV_ID_AND_QUERY_BOUNDARY.md),
+[zamienniki DS4](research/DS4_COMPATIBILITY_RESEARCH.md).
