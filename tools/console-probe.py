@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 from datetime import datetime, timezone
 from probe_log import appended_log, usb_outcome
+from usb_owner_log import assess_usb_owner
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--host', required=True)
@@ -71,7 +72,8 @@ if args.elf:
     with socket.create_connection((args.host, args.loader_port), timeout=8) as sock:
         sock.sendall(data)
         sock.shutdown(socket.SHUT_WR)
-    prompt = 'perform the input sequence now. ' if args.elf.name.startswith('dualsense4hen-usb-') else ''
+    prompt = ('perform the input sequence now. ' if args.elf.name.startswith('dualsense4hen-usb-')
+              and args.elf.name != 'dualsense4hen-usb-owner.elf' else '')
     print(f'ELF sent; {prompt}TCP send does not prove execution.', flush=True)
 
 if args.elf or args.fetch_only:
@@ -98,5 +100,7 @@ if args.elf or args.fetch_only:
     lines = result.decode('utf-8', errors='replace').splitlines()
     print('\n'.join(lines[-max(1,args.print_lines):]))
     print(f'{"Newly appended" if args.elf else "Full cumulative"} console log saved to {args.output}')
-    if args.elf and (b'USB probe revision=' in result or args.elf.name.startswith('dualsense4hen-usb-')):
+    if args.elf and args.elf.name == 'dualsense4hen-usb-owner.elf':
+        print(json.dumps(assess_usb_owner(result), indent=2))
+    elif args.elf and (b'USB probe revision=' in result or args.elf.name.startswith('dualsense4hen-usb-')):
         print(usb_outcome(result))

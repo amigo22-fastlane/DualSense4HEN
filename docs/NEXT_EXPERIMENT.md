@@ -1,5 +1,15 @@
 # Następny eksperyment po 0x81540002
 
+**Bieżąca decyzja przygotowawcza, 2026-10-30:** etap Bluetooth/GetDeviceInfo
+ma wynik **BLOCKED na już zatwierdzonych materiałach**. Nie powtarzamy tych
+samych sond ani nie pozyskujemy nowego kodu/memory. Rekomendowany jeden test
+to **USB-owner**, dopiero po zakończeniu obserwacji BT i osobnej zgodzie.
+ELF odtworzono z identycznym hashem; gotowe automatyczne pobranie i ocena
+świeżego logu: `python tools/usb_owner_test.py prepare` (wyłącznie lokalne).
+[Raport A/B/C i procedura zatwierdzenia](research/NEXT_MEASURABLE_EXPERIMENT.md),
+[plan VDA bez uruchomienia](research/VDA_TEST_PLAN.md).
+Poniższe wpisy zachowują historię; nie są poleceniem nowych operacji na PS4.
+
 **Dalszy audyt 2026-10-30, bez nowych testów konsoli:** ustalono źródło devId
 w natywnych rekordach /dev/mbus (48 B) i znakowanie górnych bitów bez zmiany
 dolnych 32. Zidentyfikowano też lookup ID w lokalnym rejestrze. Writer-side

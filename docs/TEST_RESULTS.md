@@ -1,5 +1,24 @@
 # Wyniki testów
 
+## 2026-10-30 — przygotowanie USB-owner, bez nowego pomiaru PS4
+
+- Ponowna cross-kompilacja `tools/build-research.ps1 -UsbOwner` odtworzyła
+  ELF **bajtowo zgodny** z dystrybucją: 51088 B, SHA256
+  `2b1c221e8577db8deb311c39addae7e1994aac8f2af4ed2ea8e09dacf4c5b212`.
+- `usb_owner_test.py prepare`: ET_DYN x86_64, 3 LOAD, brak importów,
+  relokacji i W+X; nie połączył się z konsolą.
+- Python: **59 testów PASS**, w tym 13 nowych testów interpretacji logu,
+  świeżości, cleanup, odmowy bez zgody, integralności artefaktu i kolektora
+  log-only. Atrapy FTP/logów nie są raportami HID ani testem PS4.
+- Zatwierdzone lokalne profile HidControl/Usbd i SceSysCore przeszły
+  ponowną weryfikację. Pełny rozmiar wyniku GetDeviceInfo nadal UNKNOWN;
+  etap A zapisany jako BLOCKED, bez nowego odczytu z konsoli.
+- VDA: tylko plan; komentarz deklaracji jawnie wskazuje privilege(1).
+  Nie zmieniono zachowania adaptera i nie uruchomiono VDA.
+
+Raport i kryteria przyszłego pomiaru:
+[NEXT_MEASURABLE_EXPERIMENT.md](research/NEXT_MEASURABLE_EXPERIMENT.md).
+
 ## 2026-10-19 — pierwszy commit
 
 - Host: Windows x86_64, Zig 0.13.0, frontend Clang, C11, `-Wall -Wextra

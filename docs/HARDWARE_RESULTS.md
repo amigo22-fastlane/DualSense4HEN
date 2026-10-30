@@ -256,3 +256,10 @@ odrzucania raportów lub odbioru X. Zbadano publiczne implementacje zgodnych
 kontrolerów; ich wyniki nie są naszym testem PS4 12.52.
 [Audyt devId](research/DEV_ID_AND_QUERY_BOUNDARY.md),
 [zamienniki DS4](research/DS4_COMPATIBILITY_RESEARCH.md).
+
+Przygotowanie kolejnego pomiaru A/B/C (2026-10-30): bez żadnych nowych
+operacji na konsoli. Audyt GetDeviceInfo = BLOCKED na dostępnych kopiach.
+USB-owner ponownie skompilowano lokalnie z identycznym hashem; przygotowano
+jednorazowy sender i automatyczne pobranie/analizę logu, bez ich uruchomienia
+w sieci PS4. VDA jest wyłącznie planem. Stan odbioru X przez USB i BT nadal
+niepotwierdzony. [Raport](research/NEXT_MEASURABLE_EXPERIMENT.md).

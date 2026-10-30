@@ -70,7 +70,8 @@ def check(path):
     assert found == wanted, f'missing bootstrap symbols: {wanted-found}'
     print(f'PASS {path}: ELF64 x86_64 ET_DYN, entry=0x{entry:x}, {len(loads)} LOADs, {count} relative relocations, no imports, no W+X')
 
-for arg in sys.argv[1:]:
-    check(arg)
-if len(sys.argv) < 2:
-    raise SystemExit('usage: python tools/check-elf.py file.elf [...]')
+if __name__ == '__main__':
+    for arg in sys.argv[1:]:
+        check(arg)
+    if len(sys.argv) < 2:
+        raise SystemExit('usage: python tools/check-elf.py file.elf [...]')

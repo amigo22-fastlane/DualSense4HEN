@@ -12,7 +12,9 @@ typedef struct {
 } d4h_vda_api;
 typedef struct { d4h_vda_api api; int initialized; } d4h_vda_backend;
 /* Caller must load libSceMbus first and resolve ALL pointers beforehand.
- * Caller supplies any necessary authority; this module changes no credentials. */
+ * Caller supplies any necessary authority; this module changes no AuthID/caps.
+ * This legacy helper DOES call privilege(1): separate approval is required.
+ * It must not be used for a future test that preserves process privileges. */
 int d4h_vda_init(d4h_vda_backend *,d4h_vda_api);
 /* Status is NEVER treated as an ID. Caller must recover a proven fresh ID. */
 int32_t d4h_vda_add(d4h_vda_backend *,int32_t user);

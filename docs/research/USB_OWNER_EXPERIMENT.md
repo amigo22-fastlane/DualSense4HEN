@@ -1,5 +1,12 @@
 # USB-OWNER — zweryfikowana procedura, jeszcze bez wykonania na PS4
 
+**Aktualna gotowość:** READY FOR SEPARATE APPROVAL. Etap analizy GetDeviceInfo
+zamknięto jako BLOCKED na dostępnych materiałach; następny pomiar to USB-owner.
+Nowy sender/collector/analyzer: `tools/usb_owner_test.py` i `usb_owner_log.py`.
+Pełna procedura, tabela wyników, kryteria pierwszego raportu i plan VDA:
+[NEXT_MEASURABLE_EXPERIMENT.md](NEXT_MEASURABLE_EXPERIMENT.md).
+Polecenie `prepare` działa wyłącznie offline; `run` wymaga osobnego okna USB.
+
 2026-10-30. Bluetooth pozostaje priorytetem. Nie uruchamiać teraz tej sondy,
 nie podłączać USB i nie zmieniać transportu bieżącej sesji.
 
@@ -67,8 +74,8 @@ Przyszła procedura:
    Nie usuwać wpisu parowania. Zachować działający DS4 do obsługi menu.
 2. Dopiero w tym oknie podłączyć DualSense potwierdzonym kablem danych.
    Udostępnić FTP/PayLoader; sprawdzić bieżący IP, zamiast zakładać dawny.
-3. Wysłać **wyłącznie** powyższy ELF przez `console-probe.py`, z osobnym
-   lokalnym logiem i bazową długością logu. Niczego nie instalować/AutoRun.
+3. Wysłać **wyłącznie** powyższy ELF przez dedykowany `usb_owner_test.py run`,
+   z nowym katalogiem, baseline i osobnym logiem. Niczego nie instalować/AutoRun.
 4. Wymagać nowych wpisów `USB owner revision=1`, `identified`, osobnych
    statusów identity/ACTIVE/NAME oraz complete i exit. Sam TCP send lub stary
    sukces w logu nie potwierdzają wykonania. Przy błędzie zachować raw/errno.
@@ -78,3 +85,7 @@ Przyszła procedura:
 Do wykazania przyczyny 0x802400ff potrzebny będzie dopiero **pierwszy błędny
 wynik konkretnej operacji backendu**, nie ostatnie errno po całym API.
 Taki eksperyment nie jest objęty niniejszą procedurą.
+
+Ponowna kompilacja z bieżących źródeł przez `build-research.ps1 -UsbOwner`
+odtworzyła dokładnie wskazany SHA256. Nie podmieniono pliku dist i nie
+uruchomiono go na PS4. Dotychczasowe dowody sprzętowe pozostają bez zmian.

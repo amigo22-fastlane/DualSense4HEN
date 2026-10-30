@@ -35,3 +35,8 @@ na PS4.** Wymaga oddzielnego okna z USB, po zachowaniu wyników istniejącej ses
 Ponowny audyt USB bez uruchomienia na PS4:
 [USB_OWNER_EXPERIMENT.md](../../docs/research/USB_OWNER_EXPERIMENT.md).
 Nie uruchamiać automatycznie podczas badań istniejącej sesji Bluetooth.
+
+Gotowy jednorazowy sender i kolektor logu dla USB-owner:
+`python tools/usb_owner_test.py prepare` (offline), a `run` dopiero po
+potwierdzeniu końca BT i osobnej zgodzie. ELF ponownie odtworzony z bieżących
+źródeł ma ten sam SHA256. [Raport A/B/C](../../docs/research/NEXT_MEASURABLE_EXPERIMENT.md).
